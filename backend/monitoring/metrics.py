@@ -52,8 +52,8 @@ class MetricHistogram:
     counts: Dict[float, int] = field(default_factory=dict)
 
     def __post_init__(self):
-        self.counts = {bucket: 0 for bucket in self.buckets}
-        self.counts[float("inf")] = 0
+        self.counts = {str(bucket): 0 for bucket in self.buckets}
+        self.counts["inf"] = 0
 
     def observe(self, value: float) -> None:
         """
@@ -63,8 +63,8 @@ class MetricHistogram:
         self.count += 1
         for bucket in self.buckets:
             if value <= bucket:
-                self.counts[bucket] += 1
-        self.counts[float("inf")] += 1
+                self.counts[str(bucket)] += 1
+        self.counts["inf"] += 1
 
     def get_summary(self) -> Dict[str, Any]:
         """
