@@ -68,11 +68,18 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "apps.core.apps.CoreConfig",
     "apps.health.apps.HealthConfig",
+    # ---- Layer 2: Identity & Access Management ----
+    "apps.authentication.apps.AuthenticationConfig",
+    "apps.accounts.apps.AccountsConfig",
+    "apps.profiles.apps.ProfilesConfig",
+    "apps.sessions.apps.SessionsConfig",
+    "apps.devices.apps.DevicesConfig",
+    "apps.mfa.apps.MFAConfig",
+    "apps.audit.apps.AuditConfig",
     # Future layers:
-    # "apps.authentication.apps.AuthenticationConfig",
-    # "apps.tenants.apps.TenantsConfig",
-    # "apps.rbac.apps.RBACConfig",
-    # "apps.products.apps.ProductsConfig",
+    # "apps.tenants.apps.TenantsConfig",   # Layer 3
+    # "apps.rbac.apps.RBACConfig",         # Layer 4
+    # "apps.products.apps.ProductsConfig", # Layer 5
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -167,6 +174,9 @@ DATABASES = {
 # Default primary key type
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Custom user model (Layer 2)
+AUTH_USER_MODEL = "authentication.User"
+
 # ============================================================
 # CACHE (Redis)
 # ============================================================
@@ -209,6 +219,18 @@ CELERY_TASK_TIME_LIMIT = 30 * 60  # 30 minutes hard limit
 CELERY_TASK_SOFT_TIME_LIMIT = 25 * 60  # 25 minutes soft limit
 CELERY_WORKER_MAX_TASKS_PER_CHILD = 1000
 CELERY_RESULT_EXTENDED = True
+
+# ============================================================
+# PASSWORD HASHERS (Layer 2 — Argon2 primary)
+# ============================================================
+# Argon2 is OWASP's recommended memory-hard algorithm.
+# Legacy PBKDF2 hashes remain readable during migration.
+
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.Argon2PasswordHasher",  # Primary
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",  # Fallback (legacy)
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+]
 
 # ============================================================
 # PASSWORD VALIDATION
