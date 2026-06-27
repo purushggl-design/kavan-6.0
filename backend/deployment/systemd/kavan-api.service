@@ -1,0 +1,35 @@
+[Unit]
+Description=KAVAN v6.0 — Gunicorn API Server
+After=network.target postgresql.service redis.service
+Wants=postgresql.service redis.service
+
+[Service]
+Type=notify
+User=kavan
+Group=kavan
+WorkingDirectory=/opt/kavan/backend
+EnvironmentFile=/opt/kavan/.env
+ExecStart=/opt/kavan/venv/bin/gunicorn \
+    --config gunicorn.conf.py \
+    config.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+RuntimeDirectory=kavan
+RuntimeDirectoryMode=0755
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=kavan-api
+
+# Auto-restart
+Restart=on-failure
+RestartSec=5s
+StartLimitBurst=5
+StartLimitInterval=60s
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,55 @@
+# ============================================================
+# KAVAN v6.0 — GitHub Actions: Security Scan
+# Runs on push to main/develop and weekly cron
+# ============================================================
+
+name: Security Scan
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "backend/**"
+      - ".github/workflows/security-scan.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "backend/**"
+  schedule:
+    - cron: "0 0 * * 0"  # Every Sunday at midnight
+
+jobs:
+  security:
+    name: Run Security Audits
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit safety pip-audit
+
+      - name: Run Bandit (Static Application Security Testing)
+        working-directory: backend
+        # Ignore warning/error failures so the pipeline can report all issues, or fail if desired.
+        # We fail on medium/high severity.
+        run: bandit -r . -ll -ii -x ./tests
+
+      - name: Run pip-audit (Vulnerability scan for dependencies)
+        working-directory: backend
+        run: pip-audit -r requirements.txt
+
+      - name: Run Safety Check
+        working-directory: backend
+        # Safety checks django/packages. We run it, ignoring exit code if safety requires API key,
+        # but configured to run on public database check if possible.
+        run: safety check || true

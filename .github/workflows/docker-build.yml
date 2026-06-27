@@ -1,0 +1,45 @@
+# ============================================================
+# KAVAN v6.0 — GitHub Actions: Docker Build Verification
+# Runs on every push and PR to main/develop
+# ============================================================
+
+name: Docker Build Verification
+
+on:
+  push:
+    branches: [main, develop, "feature/**", "hotfix/**"]
+    paths:
+      - "backend/Dockerfile"
+      - "backend/**"
+      - "docker-compose.yml"
+      - "nginx/**"
+      - ".github/workflows/docker-build.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "backend/Dockerfile"
+      - "backend/**"
+      - "docker-compose.yml"
+      - "nginx/**"
+
+jobs:
+  docker-build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Backend Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: false
+          tags: kavan-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

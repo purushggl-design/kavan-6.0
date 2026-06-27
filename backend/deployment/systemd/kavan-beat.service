@@ -1,0 +1,30 @@
+[Unit]
+Description=KAVAN v6.0 — Celery Beat Scheduler
+After=network.target redis.service postgresql.service
+Wants=redis.service postgresql.service
+
+[Service]
+Type=simple
+User=kavan
+Group=kavan
+WorkingDirectory=/opt/kavan/backend
+EnvironmentFile=/opt/kavan/.env
+ExecStart=/opt/kavan/venv/bin/celery \
+    -A config.celery \
+    beat \
+    --loglevel=INFO \
+    --scheduler django_celery_beat.schedulers:DatabaseScheduler \
+    --pidfile=/run/kavan/celerybeat.pid \
+    --logfile=/var/log/kavan/celerybeat.log
+RuntimeDirectory=kavan
+RuntimeDirectoryMode=0755
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=kavan-beat
+
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

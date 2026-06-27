@@ -1,0 +1,40 @@
+# ============================================================
+# KAVAN v6.0 — Python Dependencies (Development)
+# ============================================================
+
+-r requirements.txt
+
+# Testing
+pytest==8.3.2
+pytest-django==4.8.0
+pytest-cov==5.0.0
+pytest-mock==3.14.0
+factory-boy==3.3.1
+faker==26.0.0
+
+# Code Quality
+black==24.8.0
+isort==5.13.2
+flake8==7.1.1
+mypy==1.11.1
+pylint==3.2.6
+django-stubs==5.0.4
+djangorestframework-stubs==3.15.0
+
+# Debugging
+django-debug-toolbar==4.4.2
+ipython==8.26.0
+ipdb==0.13.13
+
+# Documentation
+Sphinx>=7.0.0,<8.0.0
+sphinx-rtd-theme==2.0.0
+
+# Security Testing
+bandit==1.7.9
+safety==3.2.5
+pip-audit==2.7.3
+
+# Development Workflow
+pre-commit==3.8.0
+

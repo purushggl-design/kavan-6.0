@@ -1,0 +1,64 @@
+# ============================================================
+# KAVAN v6.0 — Tool Configurations
+# ============================================================
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+exclude = '''
+/(
+    \.git
+  | \.github
+  | \.mypy_cache
+  | \.pytest_cache
+  | \.venv
+  | venv
+  | migrations
+  | staticfiles
+  | media
+  | logs
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+multi_line_output = 3
+include_trailing_comma = true
+skip = [".git", "migrations", "venv"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "S",   # flake8-bandit
+]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "F403"]
+"tests/*" = ["S101", "S105", "S106"]
+"config/settings/*" = ["F403", "F405"]
+
+[tool.mypy]
+python_version = "3.12"
+plugins = [
+    "mypy_django_plugin.main",
+    "mypy_drf_plugin.main",
+]
+strict = true
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+check_untyped_defs = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings.testing"
