@@ -1,0 +1,195 @@
+# ============================================================
+# KAVAN v6.0 — Docker Compose (Local Development)
+# ============================================================
+# Usage:
+#   cp .env.template .env   (fill in values)
+#   docker-compose up -d
+#   docker-compose logs -f api
+# ============================================================
+
+
+
+services:
+
+  # ----------------------------------------------------------
+  # PostgreSQL 16
+  # ----------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: kavan_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-kavan_db}
+      POSTGRES_USER: ${POSTGRES_USER:-kavan_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kavan_secure_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kavan_user} -d ${POSTGRES_DB:-kavan_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kavan_network
+
+  # ----------------------------------------------------------
+  # Redis 7
+  # ----------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: kavan_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - kavan_network
+
+  # ----------------------------------------------------------
+  # Django API (Development)
+  # ----------------------------------------------------------
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+
+    container_name: kavan_api
+    restart: unless-stopped
+
+    command: >
+      sh -c "
+        echo 'Waiting for PostgreSQL...' &&
+        python manage.py wait_for_db 2>/dev/null || sleep 5 &&
+        python manage.py migrate --noinput &&
+        python manage.py runserver 0.0.0.0:8000
+      "
+
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.development
+      DEBUG: "True"
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1,0.0.0.0}
+
+      DB_ENGINE: django.db.backends.postgresql
+      DB_NAME: ${POSTGRES_DB:-kavan_db}
+      DB_USER: ${POSTGRES_USER:-kavan_user}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-kavan_secure_password}
+      DB_HOST: db
+      DB_PORT: 5432
+
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+
+      LOG_LEVEL: DEBUG
+
+    volumes:
+      - ./backend:/app
+      - ./backend/logs:/app/logs
+
+    ports:
+      - "8000:8000"
+
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+    networks:
+      - kavan_network
+
+  # ----------------------------------------------------------
+  # Celery Worker
+  # ----------------------------------------------------------
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: kavan_celery_worker
+    restart: unless-stopped
+    command: celery -A config.celery worker --loglevel=info --concurrency=2
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.development
+      DEBUG: "True"
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
+      DB_NAME: ${POSTGRES_DB:-kavan_db}
+      DB_USER: ${POSTGRES_USER:-kavan_user}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-kavan_secure_password}
+      DB_HOST: db
+      DB_PORT: 5432
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    volumes:
+      - ./backend:/app
+      - ./backend/logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - kavan_network
+
+  # ----------------------------------------------------------
+  # Celery Beat (Scheduler)
+  # ----------------------------------------------------------
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: kavan_celery_beat
+    restart: unless-stopped
+    command: celery -A config.celery beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.development
+      DEBUG: "True"
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-in-production}
+      DB_NAME: ${POSTGRES_DB:-kavan_db}
+      DB_USER: ${POSTGRES_USER:-kavan_user}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-kavan_secure_password}
+      DB_HOST: db
+      DB_PORT: 5432
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    volumes:
+      - ./backend:/app
+      - ./backend/logs:/app/logs
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - kavan_network
+
+# ----------------------------------------------------------
+# Volumes
+# ----------------------------------------------------------
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+ 
+
+# ----------------------------------------------------------
+# Networks
+# ----------------------------------------------------------
+networks:
+  kavan_network:
+    driver: bridge
