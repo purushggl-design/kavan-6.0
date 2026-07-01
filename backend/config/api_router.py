@@ -31,9 +31,12 @@ router = DefaultRouter()
 # router.register(r"roles", RoleViewSet, basename="roles")
 # router.register(r"permissions", PermissionViewSet, basename="permissions")
 
-# Layer 5 — Products
-# router.register(r"products", ProductViewSet, basename="products")
+# Layer 5 — Products / Marketplace
+from apps.marketplace.api.platform_views import PlatformProductViewSet
+from apps.marketplace.api.tenant_views import TenantMarketplaceViewSet
 
+router.register(r"platform/products", PlatformProductViewSet, basename="platform-products")
+router.register(r"marketplace", TenantMarketplaceViewSet, basename="tenant-marketplace")
 # Export the URL patterns for inclusion in urls.py
 app_name = "api_v1"
 urlpatterns = router.urls
