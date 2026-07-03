@@ -1,4 +1,4 @@
-# KAVAN v5.2 – Enterprise Identity & Access Management Platform
+# KAVAN v6.0 – Enterprise Identity & Access Management Platform
 
 ![KAVAN Logo](docs/images/logo.png)
 
@@ -9,10 +9,10 @@
 [![Docker](https://img.shields.io/badge/Docker-Compatible-blue.svg)](https://docker.com)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](#)
-[![Coverage](https://img.shields.io/badge/Coverage-95%25-brightgreen.svg)](#)
+[![Coverage](https://img.shields.io/badge/Coverage-69%25-brightgreen.svg)](#)
 [![Release Status](https://img.shields.io/badge/Release-Stable-brightgreen.svg)](#)
 
-*   **Current Version**: v5.2.0
+*   **Current Version**: v6.0.0
 *   **License**: MIT
 *   **Documentation**: Enterprise Engineering Handbook
 
@@ -147,11 +147,11 @@ KAVAN is built in sequential layers to ensure stability before expanding feature
 | Layer | Component Description | Status | Completion |
 | :--- | :--- | :--- | :--- |
 | Layer 1 | Infrastructure & Clean Architecture | Complete | 100% |
-| Layer 2 | Enterprise Authentication | Complete | ~99% |
-| Layer 3 | Enterprise Multi-Tenant Engine | Complete | ~99% |
-| Layer 4 | Enterprise RBAC | Complete | ~99% |
-| Layer 5 | Marketplace / Product Management | Pending | 0% |
-| Layer 6 | Deployment & Provisioning Engine | Pending | 0% |
+| Layer 2 | Enterprise Authentication | Complete | 100% |
+| Layer 3 | Enterprise Multi-Tenant Engine | Complete | 100% |
+| Layer 4 | Enterprise RBAC | Complete | 100% |
+| Layer 5 | Marketplace / Product Management | Complete | 100% |
+| Layer 6 | Deployment & Provisioning Engine | In Progress | 10% |
 | Layer 7 | AI & Automation Engine | Pending | 0% |
 | Layer 8 | Monitoring & Observability Stack | Pending | 0% |
 | Layer 9 | Billing & Licensing | Pending | 0% |
@@ -606,8 +606,7 @@ graph LR
 
 ## 31. Future Roadmap
 
-KAVAN is actively expanding its capabilities to build the product ecosystem on top of the completed Control Plane (Layers 1-4):
-*   **Layer 5**: Marketplace & Product Management (Product catalogs, deployment logic).
+KAVAN is actively expanding its capabilities to build the product ecosystem on top of the completed Control Plane (Layers 1-5):
 *   **Layer 6**: Deployment Engine (Docker, Kubernetes).
 *   **Layer 7**: AI & Automation Engine.
 *   **Layer 8**: Monitoring & Observability.
