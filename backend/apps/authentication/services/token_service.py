@@ -8,7 +8,7 @@ import jwt
 from django.conf import settings
 from django.core.cache import cache
 
-from backend.apps.authentication.models import User, RefreshToken
+from apps.authentication.models import User, RefreshToken
 
 
 class TokenException(Exception):

@@ -1,4 +1,4 @@
-﻿"""
+"""
 KAVAN v6.0 -- Authentication Signals
 ============================================================
 Post-save signal: automatically creates UserProfile when a

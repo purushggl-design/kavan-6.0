@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from backend.apps.marketplace.models.product import (
+from apps.marketplace.models.product import (
     Product, ProductVersion, ProductCategory, ProductDependency,
     MarketplaceListing, TenantProduct
 )

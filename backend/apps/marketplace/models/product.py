@@ -1,6 +1,6 @@
 from django.db import models
-from backend.common.models.base_model import BaseModel
-from backend.apps.tenants.models.tenant import Tenant
+from common.models.base_model import BaseModel
+from apps.tenants.models.tenant import Tenant
 
 class ProductStatus(models.TextChoices):
     DRAFT = 'DRAFT', 'Draft'

@@ -1,5 +1,5 @@
-from backend.apps.marketplace.repositories.product_repository import ProductRepository
-from backend.apps.marketplace.models.product import ProductStatus
+from apps.marketplace.repositories.product_repository import ProductRepository
+from apps.marketplace.models.product import ProductStatus
 
 class ProductService:
     def __init__(self):

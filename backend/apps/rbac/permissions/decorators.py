@@ -1,5 +1,5 @@
 from rest_framework.permissions import BasePermission
-from backend.apps.rbac.services.rbac_service import RBACService
+from apps.rbac.services.rbac_service import RBACService
 
 class HasPlatformPermission:
     def __init__(self, permission_code):

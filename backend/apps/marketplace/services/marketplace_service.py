@@ -1,5 +1,5 @@
-from backend.apps.marketplace.repositories.marketplace_repository import MarketplaceRepository
-from backend.apps.marketplace.repositories.product_repository import ProductRepository
+from apps.marketplace.repositories.marketplace_repository import MarketplaceRepository
+from apps.marketplace.repositories.product_repository import ProductRepository
 
 class MarketplaceService:
     def __init__(self):

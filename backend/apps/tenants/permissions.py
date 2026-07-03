@@ -1,5 +1,5 @@
 from rest_framework.permissions import BasePermission
-from backend.apps.tenants.models.tenant_member import TenantMember
+from apps.tenants.models.tenant_member import TenantMember
 
 class IsTenantOwner(BasePermission):
     def has_permission(self, request, view):

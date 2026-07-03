@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models.product import Product, MarketplaceListing, ProductVersion
-from backend.apps.audit.services.audit_service import AuditService
+# from apps.audit.services.audit_service import AuditService
 # Assuming AnalyticsService will be implemented
 # from .services.analytics_service import AnalyticsService
 
@@ -19,16 +19,16 @@ def product_post_save(sender, instance, created, **kwargs):
             status="DRAFT"
         )
         
-        # Log to Audit
-        try:
-            AuditService.log_event(
-                action="PRODUCT_CREATED",
-                resource_type="Product",
-                resource_id=str(instance.id),
-                details={"product_name": instance.name, "product_code": instance.code}
-            )
-        except Exception:
-            pass # Suppress if Audit is not fully configured yet
+        # Log to Audit (Disabled until AuditService is implemented)
+        # try:
+        #     AuditService.log_event(
+        #         action="PRODUCT_CREATED",
+        #         resource_type="Product",
+        #         resource_id=str(instance.id),
+        #         details={"product_name": instance.name, "product_code": instance.code}
+        #     )
+        # except Exception:
+        #     pass # Suppress if Audit is not fully configured yet
         
         # Create analytics record
         # AnalyticsService.create_initial_record(instance.id)

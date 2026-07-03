@@ -1,5 +1,5 @@
 from django.db import models
-from backend.common.models.base_model import BaseModel
+from common.models.base_model import BaseModel
 from django.utils.translation import gettext_lazy as _
 
 class MemberRole(models.TextChoices):

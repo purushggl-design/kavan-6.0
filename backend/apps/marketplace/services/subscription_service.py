@@ -1,5 +1,5 @@
-from backend.apps.marketplace.repositories.tenant_product_repository import TenantProductRepository
-from backend.apps.marketplace.repositories.product_repository import ProductRepository
+from apps.marketplace.repositories.tenant_product_repository import TenantProductRepository
+from apps.marketplace.repositories.product_repository import ProductRepository
 import datetime
 
 class SubscriptionService:
@@ -14,6 +14,13 @@ class SubscriptionService:
             version_id=version_id,
             status='ACTIVE'
         )
+        
+    def unsubscribe_tenant(self, tenant_id: str, product_id: str):
+        # Find the active subscription and set it to EXPIRED or SUSPENDED
+        # Note: the repo methods need to be fully built, doing a raw ORM update for simplicity
+        from apps.marketplace.models.product import TenantProduct
+        TenantProduct.objects.filter(tenant_id=tenant_id, product_id=product_id).update(status='EXPIRED')
+        return True
         
     def install_product(self, subscription_id: str):
         subscription = self.subscription_repo.get_by_id(subscription_id)

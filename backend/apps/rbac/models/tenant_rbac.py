@@ -4,11 +4,10 @@ from django.contrib.contenttypes.models import ContentType
 import uuid
 
 class TenantRole(models.TextChoices):
-    OWNER = 'OWNER', 'Owner'
     ADMIN = 'ADMIN', 'Admin'
     DEVELOPER = 'DEVELOPER', 'Developer'
-    SECURITY_ANALYST = 'SECURITY_ANALYST', 'Security Analyst'
-    END_USER = 'END_USER', 'End User'
+    VIEWER = 'VIEWER', 'Viewer'
+    AUDITOR = 'AUDITOR', 'Auditor'
 
 class TenantPermission(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

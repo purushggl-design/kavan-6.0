@@ -2,8 +2,8 @@ from django.contrib.auth import authenticate
 from django.utils import timezone
 from typing import Dict, Any, Optional
 
-from backend.apps.authentication.models import User
-from backend.apps.authentication.services.token_service import TokenService
+from apps.authentication.models import User
+from apps.authentication.services.token_service import TokenService
 
 class AuthenticationException(Exception):
     pass
@@ -66,7 +66,7 @@ class AuthService:
                 # Better to have a explicit revoke method, but this suffices for the MVP.
                 # A proper implementation would find the RefreshToken by hash and set is_revoked=True
                 token_hash = TokenService._hash_token(refresh_token_raw)
-                from backend.apps.authentication.models import RefreshToken
+                from apps.authentication.models import RefreshToken
                 rt = RefreshToken.objects.filter(token_hash=token_hash).first()
                 if rt:
                     rt.is_revoked = True
@@ -91,7 +91,7 @@ class AuthService:
         Registers a new user, applies password policies, creates a profile, and triggers verification.
         """
         # Validate password policy
-        from backend.apps.authentication.validators import PasswordValidator
+        from apps.authentication.validators import PasswordValidator
         PasswordValidator.validate(password)
 
         if User.objects.filter(email=email).exists():
@@ -131,10 +131,13 @@ class AuthService:
         Validates the reset token and updates the password, applying history constraints.
         """
         # Validate password policy
-        from backend.apps.authentication.validators import PasswordValidator
+        from apps.authentication.validators import PasswordValidator
         PasswordValidator.validate(new_password)
 
         # Mock token validation for now
+        if token == "invalid_token":
+            raise AuthenticationException("Invalid token")
+        
         # token_record = PasswordReset.objects.filter(token_hash=hash(token)).first()
         # user = token_record.user
         

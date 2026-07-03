@@ -8,6 +8,7 @@ Optimized settings for fast test execution:
   - Muted logging noise
 """
 
+import logging
 from .base import *  # noqa: F401, F403
 
 # Core
@@ -44,6 +45,8 @@ EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 
 # Disable logging noise during test run
 logging.disable(logging.CRITICAL)  # Mutes logs globally for speed
+
+ALLOWED_HOSTS = ["*"]
 
 # Simplify LOGGING config to prevent file writes during tests
 LOGGING = {

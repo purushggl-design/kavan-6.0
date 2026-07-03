@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from backend.apps.tenants.permissions import IsPlatformAdmin
-from backend.apps.tenants.models.tenant import Tenant
-from backend.apps.tenants.serializers import TenantSerializer
+from apps.tenants.permissions import IsPlatformAdmin
+from apps.tenants.models.tenant import Tenant
+from apps.tenants.serializers import TenantSerializer
 
 class PlatformTenantListAPIView(APIView):
     permission_classes = [IsPlatformAdmin]

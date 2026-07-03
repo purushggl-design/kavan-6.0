@@ -5,7 +5,7 @@ import logging
 import os
 import subprocess
 from django.core.management import call_command
-from backend.apps.tenants.models.tenant import Tenant
+from apps.tenants.models.tenant import Tenant
 
 logger = logging.getLogger(__name__)
 

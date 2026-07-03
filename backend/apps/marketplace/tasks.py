@@ -34,12 +34,14 @@ def publish_version(version_id):
 @shared_task
 def marketplace_sync():
     logger.info("Running marketplace sync...")
-    # Example logic: update popularity based on downloads
     listings = MarketplaceListing.objects.all()
     for listing in listings:
+        # Business logic: if downloads > 1000, mark popular. If > 500 recently, trending.
         if listing.downloads > 1000:
             listing.is_popular = True
-            listing.save()
+        if listing.downloads > 500:
+            listing.is_trending = True
+        listing.save()
     logger.info("Marketplace sync completed.")
     return True
 
@@ -63,12 +65,21 @@ def dependency_checker(product_id):
 @shared_task
 def product_statistics():
     logger.info("Aggregating product statistics...")
+    from django.db.models import Count
+    from apps.marketplace.models.product import TenantProduct
+    
+    # Example: update downloads/subs for each listing
+    products = Product.objects.annotate(sub_count=Count('tenantproduct'))
+    for product in products:
+        if hasattr(product, 'listing'):
+            product.listing.downloads = product.sub_count
+            product.listing.save()
     return True
 
 @shared_task
 def update_product_statistics():
-    logger.info("Updating product statistics...")
-    return True
+    # Alias to product_statistics for now
+    return product_statistics()
 
 @shared_task
 def validate_dependencies(product_id):

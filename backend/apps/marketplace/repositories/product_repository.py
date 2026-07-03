@@ -1,5 +1,5 @@
-from backend.common.repositories.base_repository import BaseRepository
-from backend.apps.marketplace.models.product import Product
+from common.repositories.base_repository import BaseRepository
+from apps.marketplace.models.product import Product
 
 class ProductRepository(BaseRepository):
     model = Product
@@ -10,5 +10,5 @@ class ProductRepository(BaseRepository):
 
     @classmethod
     def get_published(cls):
-        from backend.apps.marketplace.models.product import ProductStatus
+        from apps.marketplace.models.product import ProductStatus
         return cls.get_queryset().filter(status=ProductStatus.PUBLISHED)

@@ -1,6 +1,6 @@
 from functools import wraps
 from rest_framework.exceptions import PermissionDenied
-from backend.apps.rbac.services.rbac_service import RBACService
+from apps.rbac.services.rbac_service import RBACService
 
 def platform_permission(permission_code):
     def decorator(view_func):

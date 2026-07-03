@@ -1,8 +1,8 @@
-from backend.apps.rbac.models.tenant_rbac import RolePermission
-from backend.apps.rbac.models.platform_rbac import PlatformRolePermission
-from backend.apps.tenants.models.tenant_member import TenantMember
-from backend.apps.rbac.services.rbac_cache import RBACCache
-from backend.apps.rbac.services.audit_service import RBACAuditService
+from apps.rbac.models.tenant_rbac import RolePermission
+from apps.rbac.models.platform_rbac import PlatformRolePermission
+from apps.tenants.models.tenant_member import TenantMember
+from apps.rbac.services.rbac_cache import RBACCache
+from apps.rbac.services.audit_service import RBACAuditService
 
 class RBACService:
     @staticmethod
@@ -14,7 +14,6 @@ class RBACService:
     def _evaluate_tenant_permission(user, tenant, permission_code):
         member = TenantMember.objects.filter(user=user, tenant=tenant, status='ACTIVE').first()
         if not member: return False, None
-        if member.role == 'OWNER': return True, member.role
         allowed = RolePermission.objects.filter(role=member.role, permission__code=permission_code).exists()
         return allowed, member.role
 

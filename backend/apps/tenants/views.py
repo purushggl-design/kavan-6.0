@@ -2,11 +2,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from backend.apps.tenants.services.tenant_lifecycle_service import TenantLifecycleService
-from backend.apps.tenants.services.tenant_context_service import TenantContextService
-from backend.apps.tenants.repositories.repositories import TenantRepository
-from backend.apps.tenants.serializers import TenantSerializer
-from backend.apps.tenants.permissions import IsTenantAdmin
+from apps.tenants.services.tenant_lifecycle_service import TenantLifecycleService
+from apps.tenants.services.tenant_context_service import TenantContextService
+from apps.tenants.repositories.repositories import TenantRepository
+from apps.tenants.serializers import TenantSerializer
+from apps.tenants.permissions import IsTenantAdmin
 
 class TenantListCreateAPIView(APIView):
     permission_classes = [IsTenantAdmin]
@@ -44,7 +44,7 @@ class TenantFreezeAPIView(APIView):
         return Response({'success': True, 'message': 'Tenant frozen'})
 
 from django.utils.decorators import method_decorator
-from backend.apps.rbac.decorators import platform_permission, tenant_permission
+from apps.rbac.decorators import platform_permission, tenant_permission
 
 class SecureTenantCreateAPIView(APIView):
     @method_decorator(platform_permission('platform:create_tenant'))

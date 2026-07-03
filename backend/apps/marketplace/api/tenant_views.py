@@ -2,9 +2,9 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from backend.apps.marketplace.models.product import Product, TenantProduct
-from backend.apps.marketplace.api.serializers import ProductSerializer, TenantProductSerializer
-from backend.apps.marketplace.services.subscription_service import SubscriptionService
+from apps.marketplace.models.product import Product, TenantProduct
+from apps.marketplace.api.serializers import ProductSerializer, TenantProductSerializer
+from apps.marketplace.services.subscription_service import SubscriptionService
 
 class TenantMarketplaceViewSet(viewsets.ReadOnlyModelViewSet):
     """
@@ -27,17 +27,20 @@ class TenantMarketplaceViewSet(viewsets.ReadOnlyModelViewSet):
     @extend_schema(summary="Get trending products", description="Requires marketplace:view permission")
     @action(detail=False, methods=['get'])
     def trending(self, request):
-        return Response([])
+        products = Product.objects.filter(status='PUBLISHED', listing__is_trending=True)
+        return Response(ProductSerializer(products, many=True).data)
 
     @extend_schema(summary="Get featured products", description="Requires marketplace:view permission")
     @action(detail=False, methods=['get'])
     def featured(self, request):
-        return Response([])
+        products = Product.objects.filter(status='PUBLISHED', listing__is_featured=True)
+        return Response(ProductSerializer(products, many=True).data)
 
     @extend_schema(summary="Get latest products", description="Requires marketplace:view permission")
     @action(detail=False, methods=['get'])
     def latest(self, request):
-        return Response([])
+        products = Product.objects.filter(status='PUBLISHED').order_by('-created_at')[:10]
+        return Response(ProductSerializer(products, many=True).data)
 
     @extend_schema(summary="Subscribe to a product", description="Requires marketplace:subscribe permission")
     @action(detail=True, methods=['post'])
@@ -50,18 +53,24 @@ class TenantMarketplaceViewSet(viewsets.ReadOnlyModelViewSet):
     @extend_schema(summary="Unsubscribe from a product", description="Requires marketplace:unsubscribe permission")
     @action(detail=True, methods=['delete'])
     def unsubscribe(self, request, pk=None):
-        # Implementation for unsubscribing
+        tenant_id = getattr(getattr(request, 'user', None), 'tenant_id', None)
+        product = self.get_object()
+        self.subscription_service.unsubscribe_tenant(tenant_id=tenant_id, product_id=product.id)
         return Response({"status": "Unsubscribed"}, status=status.HTTP_200_OK)
 
     @extend_schema(summary="Get active subscriptions", description="Requires marketplace:view permission")
     @action(detail=False, methods=['get'])
     def subscriptions(self, request):
-        return Response([])
+        tenant_id = getattr(getattr(request, 'user', None), 'tenant_id', None)
+        subs = TenantProduct.objects.filter(tenant_id=tenant_id, status='ACTIVE')
+        return Response(TenantProductSerializer(subs, many=True).data)
 
     @extend_schema(summary="Get installed products", description="Requires product:view permission")
     @action(detail=False, methods=['get'])
     def installed(self, request):
-        return Response([])
+        tenant_id = getattr(getattr(request, 'user', None), 'tenant_id', None)
+        subs = TenantProduct.objects.filter(tenant_id=tenant_id, is_installed=True)
+        return Response(TenantProductSerializer(subs, many=True).data)
         
     @extend_schema(summary="Request deployment (Layer 6)", description="Requires product:deploy permission")
     @action(detail=True, methods=['post'])

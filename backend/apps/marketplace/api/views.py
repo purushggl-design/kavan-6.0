@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.utils.decorators import method_decorator
-from backend.apps.rbac.decorators import platform_permission, tenant_permission
-from backend.apps.marketplace.models.product import Product, ProductVersion, TenantProduct, ProductDeployment
+from apps.rbac.decorators import platform_permission, tenant_permission
+from apps.marketplace.models.product import Product, ProductVersion, TenantProduct, ProductDeployment
 
 class PlatformProductListCreateAPIView(APIView):
     @method_decorator(platform_permission('platform:create_product'))

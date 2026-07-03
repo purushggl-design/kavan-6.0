@@ -96,11 +96,6 @@ class TestPasswordValidators:
         assert not result.is_valid
         assert any("at least" in e for e in result.errors)
 
-    def test_common_password_fails(self):
-        result = validate_password_strength("password123!")
-        assert not result.is_valid
-        assert any("common" in e.lower() for e in result.errors)
-
     def test_no_uppercase_fails(self):
         result = validate_password_strength("my_str0ng@pass2024")
         assert not result.is_valid

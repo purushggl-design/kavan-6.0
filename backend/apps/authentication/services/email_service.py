@@ -1,7 +1,7 @@
 import logging
 from django.core.mail import send_mail
 from django.conf import settings
-from backend.apps.authentication.models import User
+from apps.authentication.models import User
 
 logger = logging.getLogger(__name__)
 

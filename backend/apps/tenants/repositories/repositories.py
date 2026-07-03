@@ -1,11 +1,11 @@
-from backend.common.repositories.base_repository import BaseRepository
-from backend.apps.tenants.models.tenant import Tenant
-from backend.apps.tenants.models.tenant_member import TenantMember
-from backend.apps.tenants.models.subscription import Subscription
-from backend.apps.tenants.models.tenant_settings import TenantSettings
-from backend.apps.tenants.models.deployment import Deployment
-from backend.apps.tenants.models.tenant_metrics import TenantMetrics
-from backend.apps.tenants.models.tenant_backup import TenantBackup
+from common.repositories.base_repository import BaseRepository
+from apps.tenants.models.tenant import Tenant
+from apps.tenants.models.tenant_member import TenantMember
+from apps.tenants.models.subscription import Subscription
+from apps.tenants.models.tenant_settings import TenantSettings
+from apps.tenants.models.deployment import Deployment
+from apps.tenants.models.tenant_metrics import TenantMetrics
+from apps.tenants.models.tenant_backup import TenantBackup
 
 class TenantRepository(BaseRepository):
     model = Tenant

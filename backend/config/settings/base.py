@@ -76,10 +76,14 @@ LOCAL_APPS = [
     "apps.devices.apps.DevicesConfig",
     "apps.mfa.apps.MFAConfig",
     "apps.audit.apps.AuditConfig",
-    # Future layers:
-    # "apps.tenants.apps.TenantsConfig",   # Layer 3
-    # "apps.rbac.apps.RBACConfig",         # Layer 4
-    # "apps.products.apps.ProductsConfig", # Layer 5
+    # ---- Layer 3: Tenants ----
+    "apps.tenants.apps.TenantsConfig",
+    # ---- Layer 4: RBAC ----
+    "apps.rbac.apps.RbacConfig",
+    # ---- Layer 5: Marketplace ----
+    "apps.marketplace.apps.MarketplaceConfig",
+    # ---- Layer 6: Deployments ----
+    "apps.deployments.apps.DeploymentsConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -113,6 +117,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     # Placeholder middleware for future layers (currently pass-through):
     # "config.middleware.auth.AuthenticationMiddleware",      # Layer 2
+    "apps.tenants.middleware.tenant_middleware.TenantMiddleware",
     # "config.middleware.tenant.TenantMiddleware",           # Layer 3
     # "config.middleware.rbac.RBACMiddleware",               # Layer 4
     # "config.middleware.audit.AuditMiddleware",             # Layer 2
@@ -259,6 +264,7 @@ AUTH_PASSWORD_VALIDATORS = [
 REST_FRAMEWORK = {
     # Authentication (Layer 2 will add JWT)
     "DEFAULT_AUTHENTICATION_CLASSES": [
+        "apps.authentication.authentication.JWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
     # Permissions (Layer 4 will add RBAC)

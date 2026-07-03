@@ -1,5 +1,5 @@
 from django.db import models
-from backend.common.models.base_model import BaseModel
+from common.models.base_model import BaseModel
 
 class TenantSettings(BaseModel):
     tenant = models.OneToOneField('tenants.Tenant', on_delete=models.CASCADE, related_name='settings')

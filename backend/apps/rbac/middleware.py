@@ -1,6 +1,6 @@
 from django.utils.deprecation import MiddlewareMixin
 from django.http import JsonResponse
-from backend.apps.rbac.services.rbac_service import RBACService
+from apps.rbac.services.rbac_service import RBACService
 
 class RBACMiddleware(MiddlewareMixin):
     # This middleware acts as a fail-safe, but explicit route protection should happen via Decorators/Classes

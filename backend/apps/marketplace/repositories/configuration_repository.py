@@ -1,5 +1,5 @@
-from backend.common.repositories.base_repository import BaseRepository
-from backend.apps.marketplace.models.product import ProductConfiguration
+from common.repositories.base_repository import BaseRepository
+from apps.marketplace.models.product import ProductConfiguration
 
 class ConfigurationRepository(BaseRepository):
     model = ProductConfiguration

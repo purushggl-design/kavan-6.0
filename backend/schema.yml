@@ -1,0 +1,1710 @@
+openapi: 3.0.3
+info:
+  title: KAVAN API
+  version: 6.0.0
+  description: KAVAN v6.0 Enterprise Multi-tenant Product Launch & Management Platform
+    Infrastructure API
+paths:
+  /api/v1/auth/forgot-password/:
+    post:
+      operationId: api_v1_auth_forgot_password_create
+      description: Sends a password reset link to the user's email if it exists.
+      summary: Forgot Password
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: Reset link sent successfully (or silently ignored if not found)
+        '400':
+          description: Validation error
+  /api/v1/auth/login/:
+    post:
+      operationId: api_v1_auth_login_create
+      description: Authenticates a user and returns JWT access and refresh tokens.
+      summary: User Login
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: Successful login
+        '400':
+          description: Validation error
+        '401':
+          description: Invalid credentials
+  /api/v1/auth/logout/:
+    post:
+      operationId: api_v1_auth_logout_create
+      description: Logs out a user and blacklists their current refresh token.
+      summary: User Logout
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: Logout successful
+        '401':
+          description: Authentication credentials were not provided or are invalid
+  /api/v1/auth/mfa/setup/:
+    post:
+      operationId: api_v1_auth_mfa_setup_create
+      description: Initiates MFA setup by generating a secret and returning a QR code
+        URI.
+      summary: MFA Setup
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: Returns OTP URI for QR code generation
+  /api/v1/auth/mfa/verify/:
+    post:
+      operationId: api_v1_auth_mfa_verify_create
+      description: Verifies the OTP during MFA setup or login.
+      summary: MFA Verify
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MFARequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MFARequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MFARequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: MFA verified successfully
+        '400':
+          description: Invalid OTP
+  /api/v1/auth/oauth/login/:
+    post:
+      operationId: api_v1_auth_oauth_login_create
+      description: Authenticates a user via OAuth provider (e.g. Google, Microsoft).
+      summary: OAuth Login
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: OAuth login successful
+  /api/v1/auth/refresh/:
+    post:
+      operationId: api_v1_auth_refresh_create
+      description: Provides a new access token and refresh token based on a valid
+        refresh token.
+      summary: Refresh JWT Token
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: Tokens refreshed
+        '400':
+          description: Validation error
+        '401':
+          description: Invalid or expired refresh token
+  /api/v1/auth/register/:
+    post:
+      operationId: api_v1_auth_register_create
+      description: Registers a new user and sends an email verification link.
+      summary: User Registration
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          description: Registration successful
+        '400':
+          description: Validation error or user exists
+  /api/v1/auth/reset-password/:
+    post:
+      operationId: api_v1_auth_reset_password_create
+      description: Resets the password using the token sent to the user's email.
+      summary: Reset Password
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: Password reset successfully
+        '400':
+          description: Validation error or invalid/expired token
+  /api/v1/auth/verify-email/:
+    post:
+      operationId: api_v1_auth_verify_email_create
+      description: Verifies the user's email using a token.
+      summary: Verify Email
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          description: Email verified successfully
+        '400':
+          description: Validation error or invalid token
+  /api/v1/marketplace/:
+    get:
+      operationId: api_v1_marketplace_list
+      description: Tenant APIs for browsing the marketplace and managing subscriptions.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductList'
+          description: ''
+  /api/v1/marketplace/{id}/:
+    get:
+      operationId: api_v1_marketplace_retrieve
+      description: Tenant APIs for browsing the marketplace and managing subscriptions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/marketplace/{id}/config/:
+    put:
+      operationId: api_v1_marketplace_config_update
+      description: Requires product:configure permission
+      summary: Configure product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/marketplace/{id}/deploy/:
+    post:
+      operationId: api_v1_marketplace_deploy_create
+      description: Requires product:deploy permission
+      summary: Request deployment (Layer 6)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/marketplace/{id}/subscribe/:
+    post:
+      operationId: api_v1_marketplace_subscribe_create
+      description: Requires marketplace:subscribe permission
+      summary: Subscribe to a product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/marketplace/{id}/unsubscribe/:
+    delete:
+      operationId: api_v1_marketplace_unsubscribe_destroy
+      description: Requires marketplace:unsubscribe permission
+      summary: Unsubscribe from a product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/v1/marketplace/featured/:
+    get:
+      operationId: api_v1_marketplace_featured_retrieve
+      description: Requires marketplace:view permission
+      summary: Get featured products
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/marketplace/installed/:
+    get:
+      operationId: api_v1_marketplace_installed_retrieve
+      description: Requires product:view permission
+      summary: Get installed products
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/marketplace/latest/:
+    get:
+      operationId: api_v1_marketplace_latest_retrieve
+      description: Requires marketplace:view permission
+      summary: Get latest products
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/marketplace/search/:
+    get:
+      operationId: api_v1_marketplace_search_retrieve
+      description: Requires marketplace:view permission
+      summary: Search marketplace products
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/marketplace/subscriptions/:
+    get:
+      operationId: api_v1_marketplace_subscriptions_retrieve
+      description: Requires marketplace:view permission
+      summary: Get active subscriptions
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/marketplace/trending/:
+    get:
+      operationId: api_v1_marketplace_trending_retrieve
+      description: Requires marketplace:view permission
+      summary: Get trending products
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/platform/products/:
+    get:
+      operationId: api_v1_platform_products_list
+      description: |-
+        Platform APIs for managing products in the KAVAN ecosystem.
+        Requires SUPER_ADMIN permissions.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProductList'
+          description: ''
+    post:
+      operationId: api_v1_platform_products_create
+      description: |-
+        Platform APIs for managing products in the KAVAN ecosystem.
+        Requires SUPER_ADMIN permissions.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/platform/products/{id}/:
+    get:
+      operationId: api_v1_platform_products_retrieve
+      description: |-
+        Platform APIs for managing products in the KAVAN ecosystem.
+        Requires SUPER_ADMIN permissions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+    put:
+      operationId: api_v1_platform_products_update
+      description: |-
+        Platform APIs for managing products in the KAVAN ecosystem.
+        Requires SUPER_ADMIN permissions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+    patch:
+      operationId: api_v1_platform_products_partial_update
+      description: |-
+        Platform APIs for managing products in the KAVAN ecosystem.
+        Requires SUPER_ADMIN permissions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProductRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProductRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProductRequest'
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+    delete:
+      operationId: api_v1_platform_products_destroy
+      description: |-
+        Platform APIs for managing products in the KAVAN ecosystem.
+        Requires SUPER_ADMIN permissions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/v1/platform/products/{id}/analytics/:
+    get:
+      operationId: api_v1_platform_products_analytics_retrieve
+      description: Requires analytics:view permission
+      summary: Get product analytics
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/platform/products/{id}/archive/:
+    post:
+      operationId: api_v1_platform_products_archive_create
+      description: Requires product:archive permission
+      summary: Archive a product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/platform/products/{id}/clone/:
+    post:
+      operationId: api_v1_platform_products_clone_create
+      description: Requires product:create permission
+      summary: Clone a product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/platform/products/{id}/feature/:
+    post:
+      operationId: api_v1_platform_products_feature_create
+      description: Requires product:feature permission
+      summary: Feature a product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/platform/products/{id}/publish/:
+    post:
+      operationId: api_v1_platform_products_publish_create
+      description: Requires product:publish permission
+      summary: Publish a product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/platform/products/{id}/restore/:
+    post:
+      operationId: api_v1_platform_products_restore_create
+      description: Requires product:restore permission
+      summary: Restore an archived product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/v1/platform/products/{id}/unfeature/:
+    post:
+      operationId: api_v1_platform_products_unfeature_create
+      description: Requires product:feature permission
+      summary: Unfeature a product
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /health/:
+    get:
+      operationId: health_retrieve
+      description: |-
+        GET /health/
+
+        Full health check — checks database, Redis, and Celery.
+        Returns aggregate status and individual service statuses.
+      tags:
+      - health
+      responses:
+        '200':
+          description: No response body
+  /health/celery/:
+    get:
+      operationId: health_celery_retrieve
+      description: |-
+        GET /health/celery/
+
+        Celery worker health check.
+      tags:
+      - health
+      responses:
+        '200':
+          description: No response body
+  /health/db/:
+    get:
+      operationId: health_db_retrieve
+      description: |-
+        GET /health/db/
+
+        Database-specific health check.
+      tags:
+      - health
+      responses:
+        '200':
+          description: No response body
+  /health/live/:
+    get:
+      operationId: health_live_retrieve
+      description: |-
+        GET /health/live/
+
+        Kubernetes liveness probe.
+        Returns 200 if the Django process is alive.
+        Returns 503 only if the process is in a crash-loop.
+      tags:
+      - health
+      responses:
+        '200':
+          description: No response body
+  /health/ready/:
+    get:
+      operationId: health_ready_retrieve
+      description: |-
+        GET /health/ready/
+
+        Kubernetes readiness probe.
+        Returns 200 only when all critical services are reachable.
+        Load balancer will stop sending traffic if this returns non-2xx.
+      tags:
+      - health
+      responses:
+        '200':
+          description: No response body
+  /health/redis/:
+    get:
+      operationId: health_redis_retrieve
+      description: |-
+        GET /health/redis/
+
+        Redis-specific health check.
+      tags:
+      - health
+      responses:
+        '200':
+          description: No response body
+  /health/system/:
+    get:
+      operationId: health_system_retrieve
+      description: |-
+        GET /health/system/
+        Returns real-time CPU, memory, disk usage, and thread metrics.
+      tags:
+      - health
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    ForgotPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+      required:
+      - email
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+    MFARequest:
+      type: object
+      properties:
+        otp:
+          type: string
+          minLength: 6
+          maxLength: 6
+      required:
+      - otp
+    MarketplaceListing:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier (UUID4)
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was first created.
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was last modified.
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        is_featured:
+          type: boolean
+        is_trending:
+          type: boolean
+        is_popular:
+          type: boolean
+        downloads:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        rating:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+        reviews_count:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        product:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+      required:
+      - created_at
+      - id
+      - product
+      - updated_at
+    MarketplaceListingRequest:
+      type: object
+      properties:
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        is_featured:
+          type: boolean
+        is_trending:
+          type: boolean
+        is_popular:
+          type: boolean
+        downloads:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        rating:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,2})?$
+        reviews_count:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        product:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+      required:
+      - product
+    PaginatedProductList:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        errors:
+          type: 'null'
+        meta:
+          type: object
+          properties:
+            pagination:
+              type: object
+              properties:
+                page:
+                  type: integer
+                page_size:
+                  type: integer
+                total_count:
+                  type: integer
+                total_pages:
+                  type: integer
+                has_next:
+                  type: boolean
+                has_previous:
+                  type: boolean
+                next_url:
+                  type: string
+                  nullable: true
+                previous_url:
+                  type: string
+                  nullable: true
+    PatchedProductRequest:
+      type: object
+      properties:
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        code:
+          type: string
+          minLength: 1
+          description: e.g., crm, erp
+          maxLength: 100
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        short_description:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        vendor:
+          type: string
+          maxLength: 255
+        owner:
+          type: string
+          maxLength: 255
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        visibility:
+          $ref: '#/components/schemas/VisibilityEnum'
+        logo:
+          type: string
+          format: uri
+          maxLength: 1024
+        banner:
+          type: string
+          format: uri
+          maxLength: 1024
+        icon:
+          type: string
+          format: uri
+          maxLength: 1024
+        website:
+          type: string
+          format: uri
+          maxLength: 1024
+        documentation_url:
+          type: string
+          format: uri
+          maxLength: 1024
+        support_url:
+          type: string
+          format: uri
+          maxLength: 1024
+        license_type:
+          type: string
+          maxLength: 100
+        pricing_model:
+          type: string
+          maxLength: 100
+        category:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+          nullable: true
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier (UUID4)
+        category_details:
+          allOf:
+          - $ref: '#/components/schemas/ProductCategory'
+          readOnly: true
+        listing:
+          allOf:
+          - $ref: '#/components/schemas/MarketplaceListing'
+          readOnly: true
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductVersion'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was first created.
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was last modified.
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        code:
+          type: string
+          description: e.g., crm, erp
+          maxLength: 100
+        name:
+          type: string
+          maxLength: 255
+        slug:
+          type: string
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        short_description:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        vendor:
+          type: string
+          maxLength: 255
+        owner:
+          type: string
+          maxLength: 255
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        visibility:
+          $ref: '#/components/schemas/VisibilityEnum'
+        logo:
+          type: string
+          format: uri
+          maxLength: 1024
+        banner:
+          type: string
+          format: uri
+          maxLength: 1024
+        icon:
+          type: string
+          format: uri
+          maxLength: 1024
+        website:
+          type: string
+          format: uri
+          maxLength: 1024
+        documentation_url:
+          type: string
+          format: uri
+          maxLength: 1024
+        support_url:
+          type: string
+          format: uri
+          maxLength: 1024
+        license_type:
+          type: string
+          maxLength: 100
+        pricing_model:
+          type: string
+          maxLength: 100
+        category:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+          nullable: true
+      required:
+      - category_details
+      - code
+      - created_at
+      - id
+      - listing
+      - name
+      - slug
+      - updated_at
+      - versions
+    ProductCategory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier (UUID4)
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was first created.
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was last modified.
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        name:
+          type: string
+          maxLength: 100
+        slug:
+          type: string
+          maxLength: 100
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+      required:
+      - created_at
+      - id
+      - name
+      - slug
+      - updated_at
+    ProductCategoryRequest:
+      type: object
+      properties:
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+      required:
+      - name
+      - slug
+    ProductRequest:
+      type: object
+      properties:
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        code:
+          type: string
+          minLength: 1
+          description: e.g., crm, erp
+          maxLength: 100
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 255
+          pattern: ^[-a-zA-Z0-9_]+$
+        short_description:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        vendor:
+          type: string
+          maxLength: 255
+        owner:
+          type: string
+          maxLength: 255
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        visibility:
+          $ref: '#/components/schemas/VisibilityEnum'
+        logo:
+          type: string
+          format: uri
+          maxLength: 1024
+        banner:
+          type: string
+          format: uri
+          maxLength: 1024
+        icon:
+          type: string
+          format: uri
+          maxLength: 1024
+        website:
+          type: string
+          format: uri
+          maxLength: 1024
+        documentation_url:
+          type: string
+          format: uri
+          maxLength: 1024
+        support_url:
+          type: string
+          format: uri
+          maxLength: 1024
+        license_type:
+          type: string
+          maxLength: 100
+        pricing_model:
+          type: string
+          maxLength: 100
+        category:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+          nullable: true
+      required:
+      - code
+      - name
+      - slug
+    ProductVersion:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier (UUID4)
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was first created.
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was last modified.
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        version_number:
+          type: string
+          description: e.g., 1.2.0
+          maxLength: 50
+        release_date:
+          type: string
+          format: date-time
+          nullable: true
+        release_notes:
+          type: string
+        min_platform_version:
+          type: string
+          maxLength: 50
+        max_platform_version:
+          type: string
+          maxLength: 50
+        docker_image:
+          type: string
+          maxLength: 255
+        checksum:
+          type: string
+          maxLength: 255
+        download_url:
+          type: string
+          format: uri
+          maxLength: 1024
+        size:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+          description: Size in bytes
+        is_stable:
+          type: boolean
+        is_lts:
+          type: boolean
+        is_latest:
+          type: boolean
+        status:
+          type: string
+          maxLength: 32
+        product:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+      required:
+      - created_at
+      - id
+      - product
+      - updated_at
+      - version_number
+    ProductVersionRequest:
+      type: object
+      properties:
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        version_number:
+          type: string
+          minLength: 1
+          description: e.g., 1.2.0
+          maxLength: 50
+        release_date:
+          type: string
+          format: date-time
+          nullable: true
+        release_notes:
+          type: string
+        min_platform_version:
+          type: string
+          maxLength: 50
+        max_platform_version:
+          type: string
+          maxLength: 50
+        docker_image:
+          type: string
+          maxLength: 255
+        checksum:
+          type: string
+          maxLength: 255
+        download_url:
+          type: string
+          format: uri
+          maxLength: 1024
+        size:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+          description: Size in bytes
+        is_stable:
+          type: boolean
+        is_lts:
+          type: boolean
+        is_latest:
+          type: boolean
+        status:
+          type: string
+          minLength: 1
+          maxLength: 32
+        product:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+      required:
+      - product
+      - version_number
+    RefreshTokenRequest:
+      type: object
+      properties:
+        refresh_token:
+          type: string
+          minLength: 1
+      required:
+      - refresh_token
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 12
+        confirm_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+      required:
+      - confirm_password
+      - email
+      - password
+    ResetPasswordRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 12
+        confirm_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - confirm_password
+      - password
+      - token
+    StatusEnum:
+      enum:
+      - DRAFT
+      - PUBLISHED
+      - ARCHIVED
+      type: string
+      description: |-
+        * `DRAFT` - Draft
+        * `PUBLISHED` - Published
+        * `ARCHIVED` - Archived
+    VerifyEmailRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          minLength: 1
+      required:
+      - token
+    VisibilityEnum:
+      enum:
+      - PUBLIC
+      - PRIVATE
+      - TENANT_SPECIFIC
+      type: string
+      description: |-
+        * `PUBLIC` - Public
+        * `PRIVATE` - Private
+        * `TENANT_SPECIFIC` - Tenant Specific
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

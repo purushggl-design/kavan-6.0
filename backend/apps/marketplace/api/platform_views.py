@@ -2,11 +2,11 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, OpenApiResponse
-from backend.apps.marketplace.models.product import Product, ProductCategory, ProductVersion
-from backend.apps.marketplace.api.serializers import (
+from apps.marketplace.models.product import Product, ProductCategory, ProductVersion
+from apps.marketplace.api.serializers import (
     ProductSerializer, ProductCategorySerializer, ProductVersionSerializer
 )
-from backend.apps.marketplace.tasks import publish_product, publish_version
+from apps.marketplace.tasks import publish_product, publish_version
 
 class PlatformProductViewSet(viewsets.ModelViewSet):
     """
@@ -41,8 +41,16 @@ class PlatformProductViewSet(viewsets.ModelViewSet):
     @extend_schema(summary="Clone a product", description="Requires product:create permission")
     @action(detail=True, methods=['post'])
     def clone(self, request, pk=None):
-        # Implementation for cloning
-        return Response({"status": "Product cloned"}, status=status.HTTP_201_CREATED)
+        product = self.get_object()
+        # Create a basic clone 
+        cloned_product = Product.objects.create(
+            name=f"{product.name} (Clone)",
+            code=f"{product.code}-clone",
+            slug=f"{product.slug}-clone",
+            description=product.description,
+            status='DRAFT'
+        )
+        return Response({"status": "Product cloned", "id": cloned_product.id}, status=status.HTTP_201_CREATED)
 
     @extend_schema(summary="Feature a product", description="Requires product:feature permission")
     @action(detail=True, methods=['post'])
@@ -65,4 +73,15 @@ class PlatformProductViewSet(viewsets.ModelViewSet):
     @extend_schema(summary="Get product analytics", description="Requires analytics:view permission")
     @action(detail=True, methods=['get'])
     def analytics(self, request, pk=None):
-        return Response({"downloads": 0, "subscribers": 0, "deployments": 0, "revenue": 0})
+        product = self.get_object()
+        downloads = getattr(product.listing, 'downloads', 0) if hasattr(product, 'listing') else 0
+        from apps.marketplace.models.product import TenantProduct
+        subs = TenantProduct.objects.filter(product=product, status='ACTIVE').count()
+        deploys = TenantProduct.objects.filter(product=product, is_installed=True).count()
+        
+        return Response({
+            "downloads": downloads,
+            "subscribers": subs,
+            "deployments": deploys,
+            "revenue": 0 # to be integrated with Layer 9
+        })

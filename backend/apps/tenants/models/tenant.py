@@ -2,8 +2,8 @@ import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from backend.common.models.base_model import BaseModel, SoftDeleteModel
-
+from common.models.base_model import BaseModel
+from common.models.tenant_manager import TenantScopedManager, UnscopedManager
 class TenantStatus(models.TextChoices):
     PENDING = 'PENDING', _('Pending')
     APPROVED = 'APPROVED', _('Approved')
@@ -14,7 +14,7 @@ class TenantStatus(models.TextChoices):
     ARCHIVED = 'ARCHIVED', _('Archived')
     DELETED = 'DELETED', _('Deleted')
 
-class Tenant(BaseModel, SoftDeleteModel):
+class Tenant(BaseModel):
     """
     Core organization representation for the multi-tenant architecture.
     """

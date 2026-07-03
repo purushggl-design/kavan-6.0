@@ -1,5 +1,5 @@
 from django.utils import timezone
-from backend.apps.tenants.models.tenant import Tenant
+from apps.tenants.models.tenant import Tenant
 
 class TenantLifecycleService:
     @classmethod

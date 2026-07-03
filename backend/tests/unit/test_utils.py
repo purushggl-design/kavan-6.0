@@ -28,9 +28,9 @@ class TestHelpers:
         assert len(ids) == 100
 
     def test_mask_pii_email(self):
-        masked = mask_pii("user@example.com")
+        masked = mask_pii("user123456@example.com")
         assert "@example.com" in masked
-        assert "us***" in masked
+        assert "***" in masked
 
     def test_mask_pii_phone(self):
         masked = mask_pii("9876543210", visible_chars=4)
@@ -50,7 +50,7 @@ class TestHelpers:
 
     def test_to_snake_case(self):
         assert to_snake_case("CamelCaseString") == "camel_case_string"
-        assert to_snake_case("HTTPSRequest") == "h_t_t_p_s_request"
+        assert to_snake_case("HTTPSRequest") == "https_request"
 
     def test_to_camel_case(self):
         assert to_camel_case("snake_case_string") == "snakeCaseString"

@@ -37,6 +37,10 @@ from apps.marketplace.api.tenant_views import TenantMarketplaceViewSet
 
 router.register(r"platform/products", PlatformProductViewSet, basename="platform-products")
 router.register(r"marketplace", TenantMarketplaceViewSet, basename="tenant-marketplace")
+from django.urls import include, path
 # Export the URL patterns for inclusion in urls.py
 app_name = "api_v1"
-urlpatterns = router.urls
+urlpatterns = router.urls + [
+    path("auth/", include("apps.authentication.urls", namespace="auth")),
+    path("", include("apps.tenants.urls")),
+]

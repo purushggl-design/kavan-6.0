@@ -1,8 +1,8 @@
 import re
 from django.utils.deprecation import MiddlewareMixin
 from django.http import JsonResponse
-from backend.apps.authentication.services.token_service import TokenService, TokenException
-from backend.apps.authentication.models import User
+from apps.authentication.services.token_service import TokenService, TokenException
+from apps.authentication.models import User
 
 class AuthenticationValidationMiddleware(MiddlewareMixin):
     """

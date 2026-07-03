@@ -1,4 +1,4 @@
-from backend.apps.marketplace.repositories.version_repository import VersionRepository
+from apps.marketplace.repositories.version_repository import VersionRepository
 
 class VersionService:
     def __init__(self):

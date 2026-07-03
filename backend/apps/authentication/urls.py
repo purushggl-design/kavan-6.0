@@ -1,7 +1,8 @@
 from django.urls import path
-from backend.apps.authentication.views import (
+from apps.authentication.views import (
     LoginAPIView, RegisterAPIView, LogoutAPIView, RefreshAPIView,
-    ForgotPasswordAPIView, ResetPasswordAPIView, VerifyEmailAPIView
+    ForgotPasswordAPIView, ResetPasswordAPIView, VerifyEmailAPIView,
+    MFASetupAPIView, MFAVerifyAPIView, OAuthLoginAPIView
 )
 
 app_name = 'authentication'
@@ -14,4 +15,7 @@ urlpatterns = [
     path('forgot-password/', ForgotPasswordAPIView.as_view(), name='forgot-password'),
     path('reset-password/', ResetPasswordAPIView.as_view(), name='reset-password'),
     path('verify-email/', VerifyEmailAPIView.as_view(), name='verify-email'),
+    path('mfa/setup/', MFASetupAPIView.as_view(), name='mfa-setup'),
+    path('mfa/verify/', MFAVerifyAPIView.as_view(), name='mfa-verify'),
+    path('oauth/login/', OAuthLoginAPIView.as_view(), name='oauth-login'),
 ]

@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional
 
-from backend.apps.authentication.models import User
-from backend.apps.authentication.services.auth_service import AuthenticationException
+from apps.authentication.models import User
+from apps.authentication.services.auth_service import AuthenticationException
 
 class BaseOAuthService(ABC):
     """

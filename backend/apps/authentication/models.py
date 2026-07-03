@@ -194,6 +194,7 @@ class User(AbstractBaseUser, PermissionsMixin, TimestampMixin):
         PLATFORM_OPERATOR = "PLATFORM_OPERATOR", _("Platform Operator")
         DEVOPS = "DEVOPS", _("DevOps")
         SECURITY_ENGINEER = "SECURITY_ENGINEER", _("Security Engineer")
+        SECURITY_ANALYST = "SECURITY_ANALYST", _("Security Analyst")
 
     platform_role = models.CharField(
         max_length=32,

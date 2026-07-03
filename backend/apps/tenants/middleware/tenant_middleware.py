@@ -1,8 +1,8 @@
 from django.utils.deprecation import MiddlewareMixin
 from django.http import JsonResponse
-from backend.apps.tenants.utils.domain_resolver import DomainResolver
-from backend.apps.tenants.services.tenant_context_service import TenantContextService
-from backend.apps.tenants.models.tenant import Tenant
+from apps.tenants.utils.domain_resolver import DomainResolver
+from apps.tenants.services.tenant_context_service import TenantContextService
+from apps.tenants.models.tenant import Tenant
 
 class TenantMiddleware(MiddlewareMixin):
     def process_request(self, request):

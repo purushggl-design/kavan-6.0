@@ -1,11 +1,11 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from backend.apps.tenants.models.tenant import Tenant
-from backend.apps.tenants.models.subscription import Subscription
-from backend.apps.tenants.models.tenant_settings import TenantSettings
-from backend.apps.tenants.models.tenant_metrics import TenantMetrics
-from backend.apps.tenants.models.tenant_backup import TenantBackup
-from backend.apps.tenants.models.deployment import Deployment
+from apps.tenants.models.tenant import Tenant
+from apps.tenants.models.subscription import Subscription
+from apps.tenants.models.tenant_settings import TenantSettings
+from apps.tenants.models.tenant_metrics import TenantMetrics
+from apps.tenants.models.tenant_backup import TenantBackup
+from apps.tenants.models.deployment import Deployment
 import logging
 
 logger = logging.getLogger(__name__)
