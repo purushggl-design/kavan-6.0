@@ -43,4 +43,5 @@ app_name = "api_v1"
 urlpatterns = router.urls + [
     path("auth/", include("apps.authentication.urls", namespace="auth")),
     path("", include("apps.tenants.urls")),
+    path("", include("apps.deployments.urls")),
 ]

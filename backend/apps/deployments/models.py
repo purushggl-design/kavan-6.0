@@ -40,6 +40,7 @@ class Deployment(TimestampMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='deployments')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='deployments')
+    tenant_product = models.ForeignKey('marketplace.TenantProduct', on_delete=models.CASCADE, related_name='layer6_deployments', null=True)
     environment = models.ForeignKey(DeploymentEnvironment, on_delete=models.SET_NULL, null=True, blank=True)
     template = models.ForeignKey(DeploymentTemplate, on_delete=models.PROTECT)
     status = models.CharField(max_length=50, choices=DeploymentState.choices, default=DeploymentState.REQUESTED)
@@ -96,10 +97,26 @@ class DeploymentSecret(TimestampMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     deployment = models.ForeignKey(Deployment, on_delete=models.CASCADE, related_name='secrets')
     key = models.CharField(max_length=255)
-    vault_path = models.CharField(max_length=1024, help_text="Path in HashiCorp Vault or similar")
+    vault_path = models.CharField(max_length=1024, blank=True, help_text="Path in HashiCorp Vault or similar")
+    value_encrypted = models.TextField(blank=True, help_text="Encrypted secret value if stored directly")
     
     class Meta:
         db_table = 'deployments_secret'
+
+    def get_secret_value(self):
+        if self.vault_path:
+            return None
+        if not self.value_encrypted:
+            return None
+            
+        from apps.deployments.security.secret_backend import get_secret_backend
+        backend = get_secret_backend()
+        return backend.decrypt(self.value_encrypted)
+
+    def set_secret_value(self, raw_value):
+        from apps.deployments.security.secret_backend import get_secret_backend
+        backend = get_secret_backend()
+        self.value_encrypted = backend.encrypt(raw_value)
 
 class DeploymentHealth(TimestampMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

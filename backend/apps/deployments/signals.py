@@ -2,7 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from apps.marketplace.models.product import TenantProduct
 from apps.deployments.models import DeploymentTemplate
-from apps.deployments.services import DeploymentService
+from apps.deployments.services.deployment_service import DeploymentService
 import logging
 
 logger = logging.getLogger(__name__)
@@ -20,6 +20,7 @@ def trigger_deployment(sender, instance, created, **kwargs):
             deployment = DeploymentService.request_deployment(
                 tenant=instance.tenant,
                 product=instance.product,
+                tenant_product=instance,
                 template=template
             )
             

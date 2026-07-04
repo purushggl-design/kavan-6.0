@@ -5,9 +5,9 @@ from apps.deployments.models import (
 
 class DeploymentRepository:
     @staticmethod
-    def create(tenant, product, template, environment=None, status='REQUESTED'):
+    def create(tenant, product, tenant_product, template, environment=None, status='REQUESTED'):
         return Deployment.objects.create(
-            tenant=tenant, product=product, template=template,
+            tenant=tenant, product=product, tenant_product=tenant_product, template=template,
             environment=environment, status=status
         )
 
