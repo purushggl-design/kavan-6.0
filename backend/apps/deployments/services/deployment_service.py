@@ -1,4 +1,5 @@
 import logging
+from common.services.base_service import BaseService
 from apps.deployments.repositories import (
     DeploymentRepository, DeploymentJobRepository, DeploymentHistoryRepository,
     DeploymentLogRepository
@@ -7,7 +8,7 @@ from apps.deployments.models import DeploymentState
 
 logger = logging.getLogger(__name__)
 
-class StateMachineService:
+class StateMachineService(BaseService):
     VALID_TRANSITIONS = {
         DeploymentState.REQUESTED: [DeploymentState.QUEUED, DeploymentState.FAILED],
         DeploymentState.QUEUED: [DeploymentState.VALIDATING, DeploymentState.FAILED],
@@ -23,17 +24,16 @@ class StateMachineService:
         DeploymentState.ROLLED_BACK: [],
     }
 
-    @staticmethod
-    def transition(deployment, new_status, job=None):
+    def transition(self, deployment, new_status, job=None):
         old_status = deployment.status
         if old_status == new_status:
             return
             
-        if new_status not in StateMachineService.VALID_TRANSITIONS.get(old_status, []):
+        if new_status not in self.VALID_TRANSITIONS.get(old_status, []):
             raise ValueError(f"Invalid transition from {old_status} to {new_status}")
             
         DeploymentRepository.update_status(deployment.id, new_status)
-        DeploymentHistoryRepository.create(deployment.id, old_status, new_status)
+        DeploymentHistoryRepository.create(deployment_id=deployment.id, old_status=old_status, new_status=new_status)
         
         deployment.status = new_status
         
@@ -42,29 +42,31 @@ class StateMachineService:
             DeploymentLogRepository.append_log(job.id, f"Transitioned from {old_status} to {new_status}")
             job.status = new_status
             
-        logger.info(f"Deployment {deployment.id} transitioned {old_status} -> {new_status}")
+        self._log_operation("transition", deployment_id=str(deployment.id), old_status=old_status, new_status=new_status)
 
-class SchedulerService:
-    @staticmethod
-    def schedule_deployment(deployment):
-        job = DeploymentJobRepository.create(deployment.id, status=DeploymentState.QUEUED)
-        StateMachineService.transition(deployment, DeploymentState.QUEUED, job)
+class SchedulerService(BaseService):
+    def schedule_deployment(self, deployment):
+        job = DeploymentJobRepository.create(deployment_id=deployment.id, status=DeploymentState.QUEUED)
+        state_machine = StateMachineService()
+        state_machine.transition(deployment, DeploymentState.QUEUED, job)
         return job
 
-class DeploymentService:
-    @staticmethod
-    def request_deployment(tenant, product, tenant_product, template):
-        deployment = DeploymentRepository.create(
-            tenant=tenant, product=product, tenant_product=tenant_product, template=template
+class DeploymentService(BaseService):
+    def __init__(self):
+        super().__init__(repository=DeploymentRepository)
+
+    def request_deployment(self, tenant, product, tenant_product, template):
+        deployment = self.repository.create(
+            tenant=tenant, product=product, tenant_product=tenant_product, template=template, status=DeploymentState.REQUESTED
         )
         return deployment
 
-    @staticmethod
-    def deploy(deployment):
+    def deploy(self, deployment):
         if deployment.status != DeploymentState.REQUESTED:
             raise ValueError(f"Cannot deploy from state {deployment.status}")
             
-        job = SchedulerService.schedule_deployment(deployment)
+        scheduler = SchedulerService()
+        job = scheduler.schedule_deployment(deployment)
         
         # Trigger Celery Task
         from apps.deployments.tasks import deploy_product_task

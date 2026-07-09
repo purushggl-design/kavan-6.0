@@ -1,0 +1,400 @@
+{
+  "accounts": {
+    "models": [
+      {
+        "name": "PasswordHistory",
+        "fields": [
+          "id",
+          "user",
+          "password_hash"
+        ]
+      }
+    ],
+    "api_exists": false,
+    "serializers_exists": false,
+    "urls_exists": false,
+    "is_wired": false,
+    "repos_exists": false,
+    "services_exists": false,
+    "signals_exists": false,
+    "tasks_exists": false,
+    "has_tests": false,
+    "status": "STUB",
+    "missing": [
+      "API (serializers, views, urls)"
+    ]
+  },
+  "audit": {
+    "models": [
+      {
+        "name": "AuditEvent",
+        "fields": [
+          "id",
+          "user",
+          "user_email"
+        ]
+      }
+    ],
+    "api_exists": false,
+    "serializers_exists": false,
+    "urls_exists": false,
+    "is_wired": false,
+    "repos_exists": false,
+    "services_exists": false,
+    "signals_exists": false,
+    "tasks_exists": false,
+    "has_tests": false,
+    "status": "STUB",
+    "missing": [
+      "API (serializers, views, urls)"
+    ]
+  },
+  "authentication": {
+    "models": [
+      {
+        "name": "EmailVerification",
+        "fields": [
+          "id",
+          "user",
+          "token_hash"
+        ]
+      },
+      {
+        "name": "PasswordReset",
+        "fields": [
+          "id",
+          "user",
+          "token_hash"
+        ]
+      }
+    ],
+    "api_exists": true,
+    "serializers_exists": true,
+    "urls_exists": false,
+    "is_wired": false,
+    "repos_exists": false,
+    "services_exists": true,
+    "signals_exists": true,
+    "tasks_exists": false,
+    "has_tests": true,
+    "status": "PARTIAL",
+    "missing": [
+      "urls.py",
+      "URL wiring"
+    ]
+  },
+  "core": {
+    "models": [],
+    "api_exists": false,
+    "serializers_exists": false,
+    "urls_exists": false,
+    "is_wired": false,
+    "repos_exists": false,
+    "services_exists": false,
+    "signals_exists": false,
+    "tasks_exists": false,
+    "has_tests": false,
+    "status": "EMPTY",
+    "missing": []
+  },
+  "deployments": {
+    "models": [],
+    "api_exists": true,
+    "serializers_exists": false,
+    "urls_exists": true,
+    "is_wired": false,
+    "repos_exists": true,
+    "services_exists": true,
+    "signals_exists": true,
+    "tasks_exists": true,
+    "has_tests": true,
+    "status": "EMPTY",
+    "missing": []
+  },
+  "devices": {
+    "models": [],
+    "api_exists": false,
+    "serializers_exists": false,
+    "urls_exists": false,
+    "is_wired": false,
+    "repos_exists": false,
+    "services_exists": false,
+    "signals_exists": false,
+    "tasks_exists": false,
+    "has_tests": false,
+    "status": "EMPTY",
+    "missing": []
+  },
+  "health": {
+    "models": [],
+    "api_exists": true,
+    "serializers_exists": false,
+    "urls_exists": true,
+    "is_wired": true,
+    "repos_exists": false,
+    "services_exists": false,
+    "signals_exists": false,
+    "tasks_exists": true,
+    "has_tests": false,
+    "status": "EMPTY",
+    "missing": []
+  },
+  "marketplace": {
+    "models": [
+      {
+        "name": "ProductCategory",
+        "fields": [
+          "name",
+          "slug",
+          "description"
+        ]
+      },
+      {
+        "name": "Product",
+        "fields": [
+          "code",
+          "name",
+          "slug"
+        ]
+      },
+      {
+        "name": "ProductVersion",
+        "fields": [
+          "product",
+          "version_number",
+          "release_date"
+        ]
+      },
+      {
+        "name": "ProductDependency",
+        "fields": [
+          "product",
+          "depends_on",
+          "version_requirement"
+        ]
+      },
+      {
+        "name": "ProductConfiguration",
+        "fields": [
+          "product",
+          "environment_variables",
+          "database_requirements"
+        ]
+      },
+      {
+        "name": "MarketplaceListing",
+        "fields": [
+          "product",
+          "is_featured",
+          "is_trending"
+        ]
+      },
+      {
+        "name": "TenantProduct",
+        "fields": [
+          "tenant",
+          "product",
+          "version"
+        ]
+      }
+    ],
+    "api_exists": true,
+    "serializers_exists": false,
+    "urls_exists": true,
+    "is_wired": false,
+    "repos_exists": true,
+    "services_exists": true,
+    "signals_exists": true,
+    "tasks_exists": true,
+    "has_tests": true,
+    "status": "PARTIAL",
+    "missing": [
+      "Serializers",
+      "URL wiring"
+    ]
+  },
+  "mfa": {
+    "models": [
+      {
+        "name": "BackupCode",
+        "fields": [
+          "id",
+          "user",
+          "code_hash"
+        ]
+      }
+    ],
+    "api_exists": false,
+    "serializers_exists": false,
+    "urls_exists": false,
+    "is_wired": false,
+    "repos_exists": false,
+    "services_exists": false,
+    "signals_exists": false,
+    "tasks_exists": false,
+    "has_tests": false,
+    "status": "STUB",
+    "missing": [
+      "API (serializers, views, urls)"
+    ]
+  },
+  "profiles": {
+    "models": [],
+    "api_exists": false,
+    "serializers_exists": false,
+    "urls_exists": false,
+    "is_wired": false,
+    "repos_exists": false,
+    "services_exists": false,
+    "signals_exists": false,
+    "tasks_exists": false,
+    "has_tests": false,
+    "status": "EMPTY",
+    "missing": []
+  },
+  "rbac": {
+    "models": [
+      {
+        "name": "PlatformPermission",
+        "fields": [
+          "id",
+          "code",
+          "description"
+        ]
+      },
+      {
+        "name": "PlatformRolePermission",
+        "fields": [
+          "id",
+          "role",
+          "permission"
+        ]
+      },
+      {
+        "name": "TenantPermission",
+        "fields": [
+          "id",
+          "code",
+          "description"
+        ]
+      },
+      {
+        "name": "RolePermission",
+        "fields": [
+          "id",
+          "role",
+          "permission"
+        ]
+      },
+      {
+        "name": "ObjectPermission",
+        "fields": [
+          "id",
+          "user",
+          "role"
+        ]
+      }
+    ],
+    "api_exists": false,
+    "serializers_exists": false,
+    "urls_exists": false,
+    "is_wired": false,
+    "repos_exists": false,
+    "services_exists": true,
+    "signals_exists": false,
+    "tasks_exists": false,
+    "has_tests": true,
+    "status": "STUB",
+    "missing": [
+      "API (serializers, views, urls)"
+    ]
+  },
+  "sessions": {
+    "models": [],
+    "api_exists": false,
+    "serializers_exists": false,
+    "urls_exists": false,
+    "is_wired": false,
+    "repos_exists": false,
+    "services_exists": false,
+    "signals_exists": false,
+    "tasks_exists": false,
+    "has_tests": false,
+    "status": "EMPTY",
+    "missing": []
+  },
+  "tenants": {
+    "models": [
+      {
+        "name": "Deployment",
+        "fields": [
+          "tenant",
+          "deployment_mode",
+          "region"
+        ]
+      },
+      {
+        "name": "Subscription",
+        "fields": [
+          "tenant",
+          "license_key",
+          "plan"
+        ]
+      },
+      {
+        "name": "Tenant",
+        "fields": [
+          "tenant_code",
+          "tenant_name",
+          "company_name"
+        ]
+      },
+      {
+        "name": "TenantBackup",
+        "fields": [
+          "tenant",
+          "backup_status",
+          "encryption_status"
+        ]
+      },
+      {
+        "name": "TenantMember",
+        "fields": [
+          "tenant",
+          "user",
+          "role"
+        ]
+      },
+      {
+        "name": "TenantMetrics",
+        "fields": [
+          "tenant",
+          "active_users",
+          "storage_used_mb"
+        ]
+      },
+      {
+        "name": "TenantSettings",
+        "fields": [
+          "tenant",
+          "smtp_host",
+          "brand_color"
+        ]
+      }
+    ],
+    "api_exists": true,
+    "serializers_exists": true,
+    "urls_exists": false,
+    "is_wired": false,
+    "repos_exists": true,
+    "services_exists": true,
+    "signals_exists": true,
+    "tasks_exists": true,
+    "has_tests": true,
+    "status": "PARTIAL",
+    "missing": [
+      "urls.py",
+      "URL wiring"
+    ]
+  }
+}

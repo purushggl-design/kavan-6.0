@@ -10,7 +10,9 @@ from apps.authentication.serializers.auth import (
     MFASerializer
 )
 from apps.authentication.services.auth_service import AuthService, AuthenticationException
+from config.exceptions.auth import InvalidCredentialsException
 from apps.authentication.services.token_service import TokenService, TokenException
+from apps.authentication.services.mfa_service import MFAService
 from common.responses.standard_response import StandardResponse
 
 class LoginAPIView(APIView):
@@ -35,10 +37,13 @@ class LoginAPIView(APIView):
             data = AuthService.login(
                 email=serializer.validated_data['email'],
                 password=serializer.validated_data['password'],
+                mfa_code=serializer.validated_data.get('mfa_code'),
                 request_meta=request.META
             )
             return StandardResponse.success(data=data, message="Login successful")
         except AuthenticationException as e:
+            if str(e) == "MFA_REQUIRED":
+                return StandardResponse.error("MFA code required.", status=status.HTTP_401_UNAUTHORIZED, code="MFA_REQUIRED")
             return StandardResponse.error(str(e), status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -208,21 +213,26 @@ class MFASetupAPIView(APIView):
         summary="MFA Setup",
         description="Initiates MFA setup by generating a secret and returning a QR code URI.",
         responses={
-            200: OpenApiResponse(description="Returns OTP URI for QR code generation")
+            200: OpenApiResponse(description="Returns OTP URI and base64 QR code")
         }
     )
     def post(self, request):
-        return StandardResponse.success(data={"otp_uri": "otpauth://totp/..."}, message="MFA setup initiated.")
+        otp_uri = MFAService.initiate_setup(request.user)
+        qr_code = MFAService.get_qr_code_base64(otp_uri)
+        return StandardResponse.success(
+            data={"otp_uri": otp_uri, "qr_code_base64": qr_code}, 
+            message="MFA setup initiated. Please verify with an OTP."
+        )
 
 class MFAVerifyAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
-        summary="MFA Verify",
-        description="Verifies the OTP during MFA setup or login.",
+        summary="MFA Verify Setup",
+        description="Verifies the OTP during MFA setup and activates MFA.",
         request=MFASerializer,
         responses={
-            200: OpenApiResponse(description="MFA verified successfully"),
+            200: OpenApiResponse(description="MFA verified successfully, returns backup codes"),
             400: OpenApiResponse(description="Invalid OTP")
         }
     )
@@ -230,7 +240,49 @@ class MFAVerifyAPIView(APIView):
         serializer = MFASerializer(data=request.data)
         if not serializer.is_valid():
             return StandardResponse.error("Validation Failed", errors=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return StandardResponse.success(message="MFA verified successfully.")
+        
+        try:
+            backup_codes = MFAService.verify_setup(request.user, serializer.validated_data['otp'])
+            return StandardResponse.success(
+                data={"backup_codes": backup_codes},
+                message="MFA verified and activated successfully. Please save these backup codes."
+            )
+        except (AuthenticationException, InvalidCredentialsException) as e:
+            return StandardResponse.error(str(e), status=status.HTTP_400_BAD_REQUEST)
+
+class MFADisableAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="MFA Disable",
+        description="Disables MFA for the current user.",
+        responses={
+            200: OpenApiResponse(description="MFA disabled successfully")
+        }
+    )
+    def post(self, request):
+        MFAService.disable_mfa(request.user)
+        return StandardResponse.success(message="MFA disabled successfully.")
+
+class MFARegenerateBackupCodesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="Regenerate Backup Codes",
+        description="Invalidates old backup codes and generates new ones.",
+        responses={
+            200: OpenApiResponse(description="Backup codes regenerated")
+        }
+    )
+    def post(self, request):
+        if not request.user.mfa_enabled:
+            return StandardResponse.error("MFA is not enabled.", status=status.HTTP_400_BAD_REQUEST)
+            
+        backup_codes = MFAService.generate_backup_codes(request.user)
+        return StandardResponse.success(
+            data={"backup_codes": backup_codes},
+            message="Backup codes regenerated successfully."
+        )
 
 class OAuthLoginAPIView(APIView):
     permission_classes = [AllowAny]

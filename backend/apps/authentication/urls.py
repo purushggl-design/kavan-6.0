@@ -2,7 +2,8 @@ from django.urls import path
 from apps.authentication.views import (
     LoginAPIView, RegisterAPIView, LogoutAPIView, RefreshAPIView,
     ForgotPasswordAPIView, ResetPasswordAPIView, VerifyEmailAPIView,
-    MFASetupAPIView, MFAVerifyAPIView, OAuthLoginAPIView
+    MFASetupAPIView, MFAVerifyAPIView, MFADisableAPIView,
+    MFARegenerateBackupCodesAPIView, OAuthLoginAPIView
 )
 
 app_name = 'authentication'
@@ -17,5 +18,7 @@ urlpatterns = [
     path('verify-email/', VerifyEmailAPIView.as_view(), name='verify-email'),
     path('mfa/setup/', MFASetupAPIView.as_view(), name='mfa-setup'),
     path('mfa/verify/', MFAVerifyAPIView.as_view(), name='mfa-verify'),
+    path('mfa/disable/', MFADisableAPIView.as_view(), name='mfa-disable'),
+    path('mfa/backup-codes/', MFARegenerateBackupCodesAPIView.as_view(), name='mfa-backup-codes'),
     path('oauth/login/', OAuthLoginAPIView.as_view(), name='oauth-login'),
 ]

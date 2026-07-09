@@ -3,6 +3,7 @@ from rest_framework import serializers
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     password = serializers.CharField(required=True, write_only=True)
+    mfa_code = serializers.CharField(required=False, write_only=True, min_length=6, max_length=8)
     
     def validate_email(self, value):
         return value.lower()

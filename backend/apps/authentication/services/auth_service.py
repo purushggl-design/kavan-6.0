@@ -4,6 +4,7 @@ from typing import Dict, Any, Optional
 
 from apps.authentication.models import User
 from apps.authentication.services.token_service import TokenService
+from apps.authentication.services.mfa_service import MFAService
 
 class AuthenticationException(Exception):
     pass
@@ -14,7 +15,7 @@ class AuthService:
     """
     
     @classmethod
-    def login(cls, email: str, password: str, request_meta: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def login(cls, email: str, password: str, mfa_code: Optional[str] = None, request_meta: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Validates credentials and issues tokens.
         Includes password history and lockout checks implicitly handled by the User model or here.
@@ -26,7 +27,12 @@ class AuthService:
         if not user.is_active:
             raise AuthenticationException("Account is disabled.")
             
-        # TODO: Implement lockouts, password expiry checks, MFA trigger here
+        if getattr(user, 'mfa_enabled', False):
+            if not mfa_code:
+                raise AuthenticationException("MFA_REQUIRED")
+            
+            if not MFAService.verify_login(user, mfa_code):
+                raise AuthenticationException("Invalid MFA code.")
         
         # Track session / login event (Audit Logging)
         cls._log_audit(user, "LOGIN_SUCCESS", request_meta)

@@ -12,8 +12,14 @@ def api_client():
     return APIClient()
 
 @pytest.fixture
-def tenant():
-    return Tenant.objects.create(name="Test Tenant", slug="test-tenant")
+def test_user():
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    return User.objects.create_user(email="deploytest@example.com", password="securepassword123", first_name="Test", last_name="User")
+
+@pytest.fixture
+def tenant(test_user):
+    return Tenant.objects.create(tenant_code="test-tenant", tenant_name="Test Tenant", company_name="Test Corp", owner=test_user)
 
 @pytest.fixture
 def product():
@@ -59,14 +65,24 @@ class TestLayer6Deployments:
         )
         
         with pytest.raises(ValueError, match="Invalid transition"):
-            StateMachineService.transition(deployment, DeploymentState.RUNNING)
+            StateMachineService().transition(deployment, DeploymentState.RUNNING)
 
     @patch('apps.deployments.tasks.deploy_product_task.delay')
-    def test_explicit_api_call_advances_state_and_fires_celery(self, mock_deploy_task, api_client, tenant, product):
+    def test_explicit_api_call_advances_state_and_fires_celery(self, mock_deploy_task, api_client, test_user, tenant, product):
         """
         Explicit API call is what advances state (assert task IS queued after call)
         """
         from apps.deployments.models import DeploymentTemplate
+        from apps.rbac.models.platform_rbac import PlatformPermission, PlatformRolePermission
+        
+        # Give user platform permissions
+        perm, _ = PlatformPermission.objects.get_or_create(code="deployment:manage", description="Manage deployments")
+        PlatformRolePermission.objects.get_or_create(role="SUPER_ADMIN", permission=perm)
+        test_user.platform_role = "SUPER_ADMIN"
+        test_user.save()
+        
+        api_client.force_authenticate(user=test_user)
+        
         template = DeploymentTemplate.objects.create(name="Test Template", product=product, docker_image="test/image")
         tp = TenantProduct.objects.create(tenant=tenant, product=product)
         deployment = Deployment.objects.create(

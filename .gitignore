@@ -84,3 +84,7 @@ nginx/ssl/*.pem
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# RSA Keys
+backend/keys/
+

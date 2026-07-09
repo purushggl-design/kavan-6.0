@@ -21,9 +21,8 @@ class TestMFA:
     def test_mfa_verify_invalid_otp(self, client):
         data = {"otp": "123456"} # assuming dummy always fails unless mocked
         response = client.post(self.mfa_verify_url, data, format='json', **self.auth_headers)
-        # For now our mock always returns success, so wait, let's check the mock implementation
-        # In views.py, it says "MFA verified successfully." if valid format.
-        assert response.status_code == status.HTTP_200_OK
+        # Since we use real MFA now, a fake OTP without setup will fail setup verification
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_mfa_verify_invalid_format(self, client):
         data = {"otp": "12A"} # invalid format

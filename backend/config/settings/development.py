@@ -55,20 +55,18 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"  # noqa: F405
 # Uncomment the Redis cache to test Redis locally.
 # ============================================================
 
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-#         "LOCATION": "kavan-dev",
-#     }
-# }
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "kavan-dev",
+    }
+}
 
 # ============================================================
 # CELERY — Eager execution for local debugging
-# Uncomment to run tasks synchronously without a broker.
-# ============================================================
-
-# CELERY_TASK_ALWAYS_EAGER = True
-# CELERY_TASK_EAGER_PROPAGATES = True
+# Tasks run synchronously in dev (no broker/Redis needed).
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = True
 
 # ============================================================
 # DRF — Show browsable API in development

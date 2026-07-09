@@ -16,7 +16,7 @@ def deploy_product_task(self, deployment_id, job_id):
         service = ProvisionService(provider=provider)
         service.provision(deployment, job)
     except Exception as exc:
-        StateMachineService.transition(deployment, 'FAILED', job)
+        StateMachineService().transition(deployment, 'FAILED', job)
         rollback_product_task.delay(deployment_id, job_id)
         self.retry(exc=exc, countdown=60)
 
@@ -38,7 +38,7 @@ def restart_product_task(deployment_id):
 def upgrade_product_task(deployment_id, job_id, new_version_tag):
     deployment = Deployment.objects.get(id=deployment_id)
     job = DeploymentJob.objects.get(id=job_id)
-    UpgradeService.upgrade(deployment, job, new_version_tag)
+    UpgradeService().upgrade(deployment, job, new_version_tag)
 
 @shared_task
 def health_check_task():

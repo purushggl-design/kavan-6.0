@@ -49,3 +49,14 @@ class RBACService:
         RBACAuditService.log_decision(user, tenant, role_evaluated, permission_code, is_allowed)
 
         return is_allowed
+
+    @staticmethod
+    def has_platform_permission(user, permission_code):
+        """Convenience alias used by HasPlatformPermission DRF permission class."""
+        return RBACService.check_permission(user, None, permission_code, is_platform_request=True)
+
+    @staticmethod
+    def has_tenant_permission(user, tenant, permission_code):
+        """Convenience alias used by HasTenantPermission DRF permission class."""
+        allowed, _ = RBACService._evaluate_tenant_permission(user, tenant, permission_code)
+        return allowed

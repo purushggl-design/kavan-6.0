@@ -23,37 +23,39 @@ class TestDeploymentStateMachine:
         self.job = DeploymentJob.objects.create(deployment=self.deployment)
 
     def test_state_transition_valid(self):
+        state_machine = StateMachineService()
         # Transition to QUEUED -> VALIDATING -> PROVISIONING
-        StateMachineService.transition(self.deployment, DeploymentState.QUEUED, self.job)
+        state_machine.transition(self.deployment, DeploymentState.QUEUED, self.job)
         self.deployment.refresh_from_db()
-        StateMachineService.transition(self.deployment, DeploymentState.VALIDATING, self.job)
+        state_machine.transition(self.deployment, DeploymentState.VALIDATING, self.job)
         self.deployment.refresh_from_db()
-        StateMachineService.transition(self.deployment, DeploymentState.PROVISIONING, self.job)
+        state_machine.transition(self.deployment, DeploymentState.PROVISIONING, self.job)
         self.deployment.refresh_from_db()
         assert self.deployment.status == DeploymentState.PROVISIONING
         
         # Test full provisioning pipeline
-        StateMachineService.transition(self.deployment, DeploymentState.INSTALLING, self.job)
+        state_machine.transition(self.deployment, DeploymentState.INSTALLING, self.job)
         self.deployment.refresh_from_db()
-        StateMachineService.transition(self.deployment, DeploymentState.CONFIGURING, self.job)
+        state_machine.transition(self.deployment, DeploymentState.CONFIGURING, self.job)
         self.deployment.refresh_from_db()
-        StateMachineService.transition(self.deployment, DeploymentState.STARTING, self.job)
+        state_machine.transition(self.deployment, DeploymentState.STARTING, self.job)
         self.deployment.refresh_from_db()
-        StateMachineService.transition(self.deployment, DeploymentState.HEALTH_CHECK, self.job)
+        state_machine.transition(self.deployment, DeploymentState.HEALTH_CHECK, self.job)
         self.deployment.refresh_from_db()
-        StateMachineService.transition(self.deployment, DeploymentState.RUNNING, self.job)
+        state_machine.transition(self.deployment, DeploymentState.RUNNING, self.job)
         self.deployment.refresh_from_db()
         assert self.deployment.status == DeploymentState.RUNNING
 
     def test_rollback_transition(self):
+        state_machine = StateMachineService()
         # Simulate a failure
-        StateMachineService.transition(self.deployment, DeploymentState.FAILED, self.job)
+        state_machine.transition(self.deployment, DeploymentState.FAILED, self.job)
         self.deployment.refresh_from_db()
         assert self.deployment.status == DeploymentState.FAILED
         
         # Trigger Rollback
-        StateMachineService.transition(self.deployment, DeploymentState.ROLLBACK, self.job)
+        state_machine.transition(self.deployment, DeploymentState.ROLLBACK, self.job)
         self.deployment.refresh_from_db()
-        StateMachineService.transition(self.deployment, DeploymentState.ROLLED_BACK, self.job)
+        state_machine.transition(self.deployment, DeploymentState.ROLLED_BACK, self.job)
         self.deployment.refresh_from_db()
         assert self.deployment.status == DeploymentState.ROLLED_BACK

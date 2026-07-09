@@ -4,19 +4,22 @@ from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema
 from apps.deployments.models import Deployment
 from apps.deployments.services.deployment_service import DeploymentService
+from apps.rbac.permissions.decorators import HasPlatformPermission
 
 class PlatformDeploymentViewSet(viewsets.ModelViewSet):
     """
     Platform APIs for managing all deployments in the KAVAN ecosystem.
+    Requires deployment:manage platform permission.
     """
     queryset = Deployment.objects.all()
+    permission_classes = [HasPlatformPermission("deployment:manage")()]
 
     @extend_schema(summary="Deploy Product manually")
     @action(detail=True, methods=['post'])
     def deploy(self, request, pk=None):
         deployment = self.get_object()
         try:
-            job = DeploymentService.deploy(deployment)
+            job = DeploymentService().deploy(deployment)
             return Response({"status": "Deploying", "job_id": str(job.id)})
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

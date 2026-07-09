@@ -66,13 +66,11 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "apps.core.apps.CoreConfig",
     "apps.health.apps.HealthConfig",
     # ---- Layer 2: Identity & Access Management ----
     "apps.authentication.apps.AuthenticationConfig",
     "apps.accounts.apps.AccountsConfig",
     "apps.profiles.apps.ProfilesConfig",
-    "apps.sessions.apps.SessionsConfig",
     "apps.devices.apps.DevicesConfig",
     "apps.mfa.apps.MFAConfig",
     "apps.audit.apps.AuditConfig",

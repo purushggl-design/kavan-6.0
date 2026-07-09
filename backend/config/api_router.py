@@ -34,14 +34,22 @@ router = DefaultRouter()
 # Layer 5 — Products / Marketplace
 from apps.marketplace.api.platform_views import PlatformProductViewSet
 from apps.marketplace.api.tenant_views import TenantMarketplaceViewSet
+from apps.rbac.api.views import RBACViewSet
+from apps.deployments.api.platform_views import PlatformDeploymentViewSet
 
 router.register(r"platform/products", PlatformProductViewSet, basename="platform-products")
 router.register(r"marketplace", TenantMarketplaceViewSet, basename="tenant-marketplace")
+router.register(r"rbac", RBACViewSet, basename="rbac")
+router.register(r"platform/deployments", PlatformDeploymentViewSet, basename="platform-deployments")
 from django.urls import include, path
 # Export the URL patterns for inclusion in urls.py
 app_name = "api_v1"
 urlpatterns = router.urls + [
     path("auth/", include("apps.authentication.urls", namespace="auth")),
+    path("accounts/", include("apps.accounts.api.urls", namespace="accounts")),
+    path("profiles/", include("apps.profiles.api.urls", namespace="profiles")),
+    path("devices/", include("apps.devices.api.urls", namespace="devices")),
+    path("audit/", include("apps.audit.api.urls", namespace="audit")),
     path("", include("apps.tenants.urls")),
     path("", include("apps.deployments.urls")),
 ]

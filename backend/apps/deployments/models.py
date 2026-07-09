@@ -1,6 +1,6 @@
 import uuid
 from django.db import models
-from common.models.mixins import TimestampMixin
+from common.models.base_model import BaseModel
 from apps.tenants.models.tenant import Tenant
 from apps.marketplace.models.product import Product
 
@@ -18,8 +18,7 @@ class DeploymentState(models.TextChoices):
     ROLLBACK = 'ROLLBACK', 'Rollback'
     ROLLED_BACK = 'ROLLED_BACK', 'Rolled Back'
 
-class DeploymentTemplate(TimestampMixin):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+class DeploymentTemplate(BaseModel):
     name = models.CharField(max_length=255)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='deployment_templates', null=True, blank=True)
     docker_image = models.CharField(max_length=512)
@@ -28,16 +27,14 @@ class DeploymentTemplate(TimestampMixin):
     class Meta:
         db_table = 'deployments_template'
 
-class DeploymentEnvironment(TimestampMixin):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+class DeploymentEnvironment(BaseModel):
     name = models.CharField(max_length=100) # e.g. dev, staging, prod
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='environments')
     
     class Meta:
         db_table = 'deployments_environment'
 
-class Deployment(TimestampMixin):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+class Deployment(BaseModel):
     tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='deployments')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='deployments')
     tenant_product = models.ForeignKey('marketplace.TenantProduct', on_delete=models.CASCADE, related_name='layer6_deployments', null=True)
@@ -49,8 +46,7 @@ class Deployment(TimestampMixin):
     class Meta:
         db_table = 'deployments_deployment'
 
-class DeploymentJob(TimestampMixin):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+class DeploymentJob(BaseModel):
     deployment = models.ForeignKey(Deployment, on_delete=models.CASCADE, related_name='jobs')
     celery_task_id = models.CharField(max_length=255, null=True, blank=True)
     status = models.CharField(max_length=50, choices=DeploymentState.choices, default=DeploymentState.QUEUED)
@@ -58,8 +54,7 @@ class DeploymentJob(TimestampMixin):
     class Meta:
         db_table = 'deployments_job'
 
-class DeploymentHistory(TimestampMixin):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+class DeploymentHistory(BaseModel):
     deployment = models.ForeignKey(Deployment, on_delete=models.CASCADE, related_name='history')
     old_status = models.CharField(max_length=50)
     new_status = models.CharField(max_length=50)
@@ -67,16 +62,14 @@ class DeploymentHistory(TimestampMixin):
     class Meta:
         db_table = 'deployments_history'
 
-class DeploymentLog(TimestampMixin):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+class DeploymentLog(BaseModel):
     job = models.ForeignKey(DeploymentJob, on_delete=models.CASCADE, related_name='logs')
     log_output = models.TextField()
     
     class Meta:
         db_table = 'deployments_log'
 
-class DeploymentArtifact(TimestampMixin):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+class DeploymentArtifact(BaseModel):
     deployment = models.ForeignKey(Deployment, on_delete=models.CASCADE, related_name='artifacts')
     s3_url = models.URLField(max_length=1024)
     artifact_type = models.CharField(max_length=100, blank=True)
@@ -84,8 +77,7 @@ class DeploymentArtifact(TimestampMixin):
     class Meta:
         db_table = 'deployments_artifact'
 
-class DeploymentVariable(TimestampMixin):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+class DeploymentVariable(BaseModel):
     deployment = models.ForeignKey(Deployment, on_delete=models.CASCADE, related_name='variables')
     key = models.CharField(max_length=255)
     value = models.TextField()
@@ -93,8 +85,7 @@ class DeploymentVariable(TimestampMixin):
     class Meta:
         db_table = 'deployments_variable'
 
-class DeploymentSecret(TimestampMixin):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+class DeploymentSecret(BaseModel):
     deployment = models.ForeignKey(Deployment, on_delete=models.CASCADE, related_name='secrets')
     key = models.CharField(max_length=255)
     vault_path = models.CharField(max_length=1024, blank=True, help_text="Path in HashiCorp Vault or similar")
@@ -118,8 +109,7 @@ class DeploymentSecret(TimestampMixin):
         backend = get_secret_backend()
         self.value_encrypted = backend.encrypt(raw_value)
 
-class DeploymentHealth(TimestampMixin):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+class DeploymentHealth(BaseModel):
     deployment = models.ForeignKey(Deployment, on_delete=models.CASCADE, related_name='health_checks')
     is_healthy = models.BooleanField(default=False)
     last_checked = models.DateTimeField(auto_now=True)
@@ -128,8 +118,7 @@ class DeploymentHealth(TimestampMixin):
     class Meta:
         db_table = 'deployments_health'
 
-class DeploymentEvent(TimestampMixin):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+class DeploymentEvent(BaseModel):
     deployment = models.ForeignKey(Deployment, on_delete=models.CASCADE, related_name='events')
     event_type = models.CharField(max_length=100)
     payload = models.JSONField(default=dict)

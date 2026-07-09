@@ -7,14 +7,16 @@ from apps.marketplace.api.serializers import (
     ProductSerializer, ProductCategorySerializer, ProductVersionSerializer
 )
 from apps.marketplace.tasks import publish_product, publish_version
+from apps.rbac.permissions.decorators import HasPlatformPermission
 
 class PlatformProductViewSet(viewsets.ModelViewSet):
     """
     Platform APIs for managing products in the KAVAN ecosystem.
-    Requires SUPER_ADMIN permissions.
+    Requires product:manage platform permission (SUPER_ADMIN has this implicitly).
     """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [HasPlatformPermission("product:manage")()]
 
     @extend_schema(summary="Publish a product", description="Requires product:publish permission")
     @action(detail=True, methods=['post'])
