@@ -66,7 +66,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "apps.health.apps.HealthConfig",
+    "apps.monitoring.apps.MonitoringConfig",
     # ---- Layer 2: Identity & Access Management ----
     "apps.authentication.apps.AuthenticationConfig",
     "apps.accounts.apps.AccountsConfig",
@@ -82,6 +82,11 @@ LOCAL_APPS = [
     "apps.marketplace.apps.MarketplaceConfig",
     # ---- Layer 6: Deployments ----
     "apps.deployments.apps.DeploymentsConfig",
+    # ---- Layer 7: SIEM Core ----
+    "apps.siem.apps.SIEMConfig",
+    "apps.incidents.apps.IncidentsConfig",
+    # ---- Layer 7: Integrations ----
+    "apps.integrations.apps.IntegrationsConfig",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

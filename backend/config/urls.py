@@ -20,7 +20,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 
     # Health Check Endpoints (Layer 1)
-    path("health/", include("apps.health.urls", namespace="health")),
+    path("health/", include("apps.monitoring.health.urls", namespace="health")),
 
     # API v1 (Layer 2+ will add routes here)
     path("api/v1/", include("config.api_router", namespace="api_v1")),

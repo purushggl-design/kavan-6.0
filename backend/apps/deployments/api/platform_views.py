@@ -41,3 +41,27 @@ class PlatformDeploymentViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def restart(self, request, pk=None):
         return Response({"status": "Restarting"})
+
+    @extend_schema(summary="Isolate Deployment (SOC Triggered)")
+    @action(detail=True, methods=['post'])
+    def isolate(self, request, pk=None):
+        """
+        Action triggered by external SIEM/SOC to quarantine a compromised deployment.
+        """
+        deployment = self.get_object()
+        # In a real environment, this might block ingress/egress rules in the cluster.
+        deployment.status = "ISOLATED"
+        deployment.save(update_fields=["status", "updated_at"])
+        
+        # Publish Audit Event
+        from apps.monitoring.services.event_bus import EventBusService
+        EventBusService.publish(
+            module="Deployment",
+            event_type="DEPLOYMENT_ISOLATED",
+            action="isolate",
+            status="success",
+            severity="CRITICAL",
+            tenant_id=deployment.tenant_id,
+            resource=f"Deployment:{deployment.id}"
+        )
+        return Response({"status": "Deployment isolated."})

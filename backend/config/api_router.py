@@ -50,6 +50,7 @@ urlpatterns = router.urls + [
     path("profiles/", include("apps.profiles.api.urls", namespace="profiles")),
     path("devices/", include("apps.devices.api.urls", namespace="devices")),
     path("audit/", include("apps.audit.api.urls", namespace="audit")),
+    path("monitoring/", include("apps.monitoring.api.urls")),
     path("", include("apps.tenants.urls")),
     path("", include("apps.deployments.urls")),
 ]

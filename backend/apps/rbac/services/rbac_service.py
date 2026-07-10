@@ -48,6 +48,20 @@ class RBACService:
         # 5. Audit Logging
         RBACAuditService.log_decision(user, tenant, role_evaluated, permission_code, is_allowed)
 
+        if not is_allowed:
+            from apps.monitoring.services.event_bus import EventBusService
+            from apps.monitoring.models.events import EventType, EventSeverity
+            EventBusService.publish(
+                module="RBAC",
+                event_type=EventType.RBAC_DENIED,
+                action="permission_check",
+                status="denied",
+                severity=EventSeverity.LOW,
+                tenant_id=getattr(tenant, 'id', None),
+                user_id=getattr(user, 'id', None),
+                metadata={"permission_code": permission_code, "is_platform": is_platform_request}
+            )
+
         return is_allowed
 
     @staticmethod

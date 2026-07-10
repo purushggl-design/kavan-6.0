@@ -32,7 +32,7 @@ class TestUUIDMixin(TestCase):
 
 @pytest.mark.unit
 class TestBaseModelBehavior(TestCase):
-    """Tests for BaseModel behavior (via apps.health model proxy if available)."""
+    """Tests for BaseModel behavior."""
 
     def test_uuid_default_is_callable(self):
         """Default UUID should be callable (not a static value)."""

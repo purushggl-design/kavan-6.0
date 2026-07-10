@@ -4,7 +4,7 @@ KAVAN v6.0 — Health App URL Configuration
 
 from django.urls import path
 
-from apps.health.views import (
+from apps.monitoring.health.views import (
     CeleryHealthView,
     DatabaseHealthView,
     HealthView,
@@ -12,7 +12,7 @@ from apps.health.views import (
     ReadinessView,
     RedisHealthView,
 )
-from apps.health.system_view import SystemHealthView
+from apps.monitoring.health.system_view import SystemHealthView
 
 app_name = "health"
 

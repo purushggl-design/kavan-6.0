@@ -49,8 +49,8 @@ class TestHealthEndpoints(TestCase):
         self.assertTrue(data["database"])
         self.assertTrue(data["redis"])
 
-    @patch("apps.health.views.check_database")
-    @patch("apps.health.views.check_redis")
+    @patch("apps.monitoring.health.views.check_database")
+    @patch("apps.monitoring.health.views.check_redis")
     def test_readiness_returns_503_when_db_down(self, mock_redis, mock_db):
         """Readiness probe returns 503 when database is down."""
         mock_db.return_value = {"status": "error", "latency_ms": 0, "message": "Connection refused"}
@@ -66,9 +66,9 @@ class TestHealthEndpoints(TestCase):
     # GET /health/
     # ----------------------------------------------------------
 
-    @patch("apps.health.views.check_database")
-    @patch("apps.health.views.check_redis")
-    @patch("apps.health.views.check_celery")
+    @patch("apps.monitoring.health.views.check_database")
+    @patch("apps.monitoring.health.views.check_redis")
+    @patch("apps.monitoring.health.views.check_celery")
     def test_full_health_returns_200_when_all_ok(self, mock_celery, mock_redis, mock_db):
         """Full health check returns 200 when all services are OK."""
         ok = {"status": "ok", "latency_ms": 1.0, "message": "OK"}
@@ -82,9 +82,9 @@ class TestHealthEndpoints(TestCase):
         self.assertTrue(data["success"])
         self.assertEqual(data["data"]["status"], "healthy")
 
-    @patch("apps.health.views.check_database")
-    @patch("apps.health.views.check_redis")
-    @patch("apps.health.views.check_celery")
+    @patch("apps.monitoring.health.views.check_database")
+    @patch("apps.monitoring.health.views.check_redis")
+    @patch("apps.monitoring.health.views.check_celery")
     def test_full_health_returns_503_when_db_down(self, mock_celery, mock_redis, mock_db):
         """Full health check returns 503 when database is down."""
         mock_db.return_value = {"status": "error", "latency_ms": 0, "message": "Error"}

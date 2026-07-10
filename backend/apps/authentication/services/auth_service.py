@@ -22,6 +22,7 @@ class AuthService:
         """
         user = authenticate(username=email, password=password)
         if not user:
+            cls._log_audit(None, "LOGIN_FAILED", request_meta)
             raise AuthenticationException("Invalid email or password.")
             
         if not user.is_active:
@@ -84,12 +85,36 @@ class AuthService:
         cls._log_audit(user, "LOGOUT", request_meta)
         
     @classmethod
-    def _log_audit(cls, user: User, action: str, request_meta: Optional[Dict[str, Any]]) -> None:
+    def _log_audit(cls, user: Optional[User], action: str, request_meta: Optional[Dict[str, Any]]) -> None:
         """
-        Helper to log authentication events. 
-        In full implementation, this writes to the Audit log model.
+        Helper to log authentication events.
+        Wires into the Layer 7 Event Bus.
         """
-        pass # To be fully wired with the audit app
+        from apps.monitoring.services.event_bus import EventBusService
+        from apps.monitoring.models.events import EventType, EventSeverity
+
+        event_type = EventType.LOGIN
+        severity = EventSeverity.INFO
+        status = "success"
+
+        if action == "LOGOUT":
+            event_type = EventType.LOGOUT
+        elif "FAIL" in action:
+            event_type = EventType.FAILED_LOGIN
+            severity = EventSeverity.MEDIUM
+            status = "failed"
+        elif "REGISTER" in action:
+            event_type = EventType.USER_CREATED
+
+        EventBusService.publish(
+            module="Authentication",
+            event_type=event_type,
+            action=action.lower(),
+            status=status,
+            severity=severity,
+            user_id=user.id if user else None,
+            metadata={"ip_address": request_meta.get("REMOTE_ADDR")} if request_meta else None
+        )
 
     @classmethod
     def register(cls, email: str, password: str, first_name: str = "", last_name: str = "", request_meta: Optional[Dict[str, Any]] = None) -> User:

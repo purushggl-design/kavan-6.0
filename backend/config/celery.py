@@ -34,7 +34,7 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     # Layer 1: Health check logging (every 5 minutes)
     "log-health-status": {
-        "task": "apps.health.tasks.log_health_status",
+        "task": "apps.monitoring.tasks.log_health_status",
         "schedule": crontab(minute="*/5"),
         "options": {"expires": 60},
     },

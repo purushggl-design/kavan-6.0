@@ -43,6 +43,36 @@ class StateMachineService(BaseService):
             job.status = new_status
             
         self._log_operation("transition", deployment_id=str(deployment.id), old_status=old_status, new_status=new_status)
+        
+        from apps.monitoring.services.event_bus import EventBusService
+        from apps.monitoring.models.events import EventType, EventSeverity
+        
+        event_type = EventType.SYSTEM_ALERT
+        severity = EventSeverity.INFO
+        status_event = "success"
+        
+        if new_status == DeploymentState.QUEUED:
+            event_type = EventType.DEPLOYMENT_STARTED
+        elif new_status == DeploymentState.FAILED:
+            event_type = EventType.DEPLOYMENT_FAILED
+            severity = EventSeverity.HIGH
+            status_event = "failed"
+        elif new_status == DeploymentState.RUNNING:
+            event_type = EventType.DEPLOYMENT_SUCCESS
+            severity = EventSeverity.INFO
+            
+        # Only publish significant state changes
+        if event_type != EventType.SYSTEM_ALERT:
+            EventBusService.publish(
+                module="Deployment",
+                event_type=event_type,
+                action="transition",
+                status=status_event,
+                severity=severity,
+                tenant_id=deployment.tenant.id if deployment.tenant else None,
+                resource=str(deployment.id),
+                metadata={"old_status": old_status, "new_status": new_status}
+            )
 
 class SchedulerService(BaseService):
     def schedule_deployment(self, deployment):

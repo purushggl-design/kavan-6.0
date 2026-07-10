@@ -19,7 +19,7 @@ class KavanJSONFormatter(logging.Formatter):
     {
         "timestamp":      "2026-06-26T10:30:00.123Z",
         "level":          "INFO",
-        "logger":         "kavan.apps.health",
+        "logger":         "kavan.apps.monitoring",
         "message":        "Health check completed",
         "request_id":     "550e8400-...",
         "module":         "views",
