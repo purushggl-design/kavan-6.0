@@ -70,3 +70,4 @@ pyotp==2.9.0
 # QR code generation for MFA setup
 qrcode[pil]==7.4.2
 
+drf-spectacular-sidecar==2024.3.3

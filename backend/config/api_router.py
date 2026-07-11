@@ -35,13 +35,22 @@ router = DefaultRouter()
 from apps.marketplace.api.platform_views import PlatformProductViewSet
 from apps.marketplace.api.tenant_views import TenantMarketplaceViewSet
 from apps.rbac.api.views import RBACViewSet
-from apps.deployments.api.platform_views import PlatformDeploymentViewSet
 
 router.register(r"platform/products", PlatformProductViewSet, basename="platform-products")
 router.register(r"marketplace", TenantMarketplaceViewSet, basename="tenant-marketplace")
 router.register(r"rbac", RBACViewSet, basename="rbac")
-router.register(r"platform/deployments", PlatformDeploymentViewSet, basename="platform-deployments")
+# Duplicate registrations removed to prevent operationId collisions
 from django.urls import include, path
+
+# Platform Tenant Management (full CRUD + approve/suspend/create-admin)
+from apps.tenants.api.platform_views import (
+    PlatformTenantListView,
+    PlatformTenantDetailView,
+    PlatformTenantApproveView,
+    PlatformTenantSuspendView,
+    PlatformTenantCreateAdminView,
+)
+
 # Export the URL patterns for inclusion in urls.py
 app_name = "api_v1"
 urlpatterns = router.urls + [
@@ -53,4 +62,17 @@ urlpatterns = router.urls + [
     path("monitoring/", include("apps.monitoring.api.urls")),
     path("", include("apps.tenants.urls")),
     path("", include("apps.deployments.urls")),
+
+    # SIEM — detection rules, correlation rules, stats
+    path("", include("apps.siem.api.urls")),
+
+    # Incidents — alerts and incidents lifecycle
+    path("", include("apps.incidents.api.urls")),
+
+    # Platform Tenant Management API (full CRUD)
+    path("platform/tenants/", PlatformTenantListView.as_view(), name="platform-tenant-list"),
+    path("platform/tenants/<uuid:pk>/", PlatformTenantDetailView.as_view(), name="platform-tenant-detail"),
+    path("platform/tenants/<uuid:pk>/approve/", PlatformTenantApproveView.as_view(), name="platform-tenant-approve"),
+    path("platform/tenants/<uuid:pk>/suspend/", PlatformTenantSuspendView.as_view(), name="platform-tenant-suspend"),
+    path("platform/tenants/<uuid:pk>/create-admin/", PlatformTenantCreateAdminView.as_view(), name="platform-tenant-create-admin"),
 ]

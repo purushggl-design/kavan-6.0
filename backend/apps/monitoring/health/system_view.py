@@ -20,6 +20,8 @@ class SystemHealthView(APIView):
     authentication_classes = []
     permission_classes = []
 
+    from drf_spectacular.utils import extend_schema
+    @extend_schema(exclude=True)
     def get(self, request: Request) -> Response:
         system_report = metrics_registry.collect_all()
         

@@ -1,0 +1,149 @@
+/* ============================================================
+   Marketplace Page — Styles
+   ============================================================ */
+
+.marketplace-page {
+  padding: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Shared with TenantListPage — reuse variables */
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; gap: 16px; flex-wrap: wrap; }
+.page-title  { font-size: 26px; font-weight: 700; color: #f1f5f9; margin: 0 0 4px; }
+.page-subtitle { font-size: 14px; color: #64748b; margin: 0; }
+
+/* Filter Tabs */
+.filter-tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid #1e293b; flex-wrap: wrap; }
+.filter-tab  { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: transparent; border: none; border-bottom: 2px solid transparent; color: #64748b; font-size: 13px; font-weight: 500; cursor: pointer; transition: color 0.15s, border-color 0.15s; margin-bottom: -1px; }
+.filter-tab:hover { color: #94a3b8; }
+.filter-tab--active { color: #7c3aed; border-bottom-color: #7c3aed; }
+.filter-tab-count { background: #1e293b; color: #64748b; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 10px; min-width: 20px; text-align: center; }
+.filter-tab--active .filter-tab-count { background: #7c3aed20; color: #7c3aed; }
+
+/* Search */
+.search-bar { display: flex; align-items: center; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 0 12px; margin-bottom: 20px; gap: 10px; transition: border-color 0.2s; }
+.search-bar:focus-within { border-color: #7c3aed; }
+.search-icon { font-size: 16px; color: #475569; }
+.search-input { flex: 1; background: transparent; border: none; outline: none; padding: 12px 0; font-size: 14px; color: #f1f5f9; font-family: 'Inter', sans-serif; }
+.search-input::placeholder { color: #475569; }
+.search-clear { background: none; border: none; color: #475569; cursor: pointer; font-size: 14px; padding: 4px; line-height: 1; }
+.search-clear:hover { color: #94a3b8; }
+
+/* Error / Loading / Empty */
+.error-banner { background: #7f1d1d20; border: 1px solid #ef444440; color: #fca5a5; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+.loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px; color: #475569; gap: 16px; }
+.spinner { width: 36px; height: 36px; border: 3px solid #1e293b; border-top-color: #7c3aed; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty-state { text-align: center; padding: 80px 20px; color: #475569; }
+.empty-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-state h3 { font-size: 18px; color: #94a3b8; margin: 0 0 8px; }
+.empty-state p { font-size: 14px; margin: 0 0 16px; }
+.empty-hint code { background: #1e293b; color: #7c3aed; padding: 8px 16px; border-radius: 6px; font-size: 13px; display: inline-block; }
+
+/* Results count */
+.results-count { font-size: 13px; color: #475569; margin: 0 0 16px; }
+
+/* Product Grid */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+/* Product Card */
+.product-card {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+  padding: 20px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.product-card:hover {
+  border-color: #7c3aed60;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.1);
+}
+
+/* Card Header */
+.product-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.product-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #7c3aed20, #06b6d420);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #7c3aed;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.product-icon img { width: 100%; height: 100%; object-fit: cover; }
+
+.product-badges { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+
+.product-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.product-status--published { background: #22c55e20; color: #22c55e; border: 1px solid #22c55e40; }
+.product-status--draft     { background: #fbbf2420; color: #fbbf24; border: 1px solid #fbbf2440; }
+.product-status--archived  { background: #64748b20; color: #64748b; border: 1px solid #64748b40; }
+
+.product-featured { font-size: 10px; color: #fbbf24; background: #fbbf2415; border: 1px solid #fbbf2430; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+
+/* Product Info */
+.product-info { flex: 1; }
+.product-name { font-size: 16px; font-weight: 700; color: #f1f5f9; margin: 0 0 8px; }
+.product-description { font-size: 13px; color: #64748b; line-height: 1.6; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Product Meta */
+.product-meta { display: flex; flex-direction: column; gap: 6px; background: #080b14; border-radius: 8px; padding: 12px; }
+.product-meta-row { display: flex; justify-content: space-between; align-items: center; }
+.meta-label { font-size: 11px; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+.meta-value { font-size: 12px; color: #94a3b8; font-weight: 500; }
+.meta-license { font-weight: 700 !important; }
+
+/* Card Footer */
+.product-card-footer { margin-top: auto; }
+.card-action-btn {
+  width: 100%;
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  text-align: center;
+}
+.card-action-btn--view {
+  background: linear-gradient(135deg, #7c3aed15, #06b6d415);
+  color: #7c3aed;
+  border: 1px solid #7c3aed40;
+}
+.card-action-btn--view:hover {
+  background: linear-gradient(135deg, #7c3aed25, #06b6d425);
+  border-color: #7c3aed;
+}

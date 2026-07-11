@@ -6,12 +6,15 @@ from apps.deployments.models import Deployment
 from apps.deployments.services.deployment_service import DeploymentService
 from apps.rbac.permissions.decorators import HasPlatformPermission
 
+from apps.deployments.api.serializers import DeploymentSerializer
+
 class PlatformDeploymentViewSet(viewsets.ModelViewSet):
     """
     Platform APIs for managing all deployments in the KAVAN ecosystem.
     Requires deployment:manage platform permission.
     """
     queryset = Deployment.objects.all()
+    serializer_class = DeploymentSerializer
     permission_classes = [HasPlatformPermission("deployment:manage")()]
 
     @extend_schema(summary="Deploy Product manually")

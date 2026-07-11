@@ -35,6 +35,8 @@ def _get_uptime() -> float:
     return round(time.time() - _START_TIME, 2)
 
 
+from drf_spectacular.utils import extend_schema
+
 def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -50,6 +52,7 @@ class HealthView(APIView):
     authentication_classes = []
     permission_classes = []
 
+    @extend_schema(exclude=True)
     def get(self, request: Request) -> Response:
         db_result = check_database()
         redis_result = check_redis()
@@ -98,6 +101,7 @@ class LivenessView(APIView):
     authentication_classes = []
     permission_classes = []
 
+    @extend_schema(exclude=True)
     def get(self, request: Request) -> Response:
         return Response(
             {
@@ -121,6 +125,7 @@ class ReadinessView(APIView):
     authentication_classes = []
     permission_classes = []
 
+    @extend_schema(exclude=True)
     def get(self, request: Request) -> Response:
         db_result = check_database()
         redis_result = check_redis()
@@ -152,6 +157,7 @@ class DatabaseHealthView(APIView):
     authentication_classes = []
     permission_classes = []
 
+    @extend_schema(exclude=True)
     def get(self, request: Request) -> Response:
         result = check_database()
         is_ok = result["status"] == "ok"
@@ -177,6 +183,7 @@ class RedisHealthView(APIView):
     authentication_classes = []
     permission_classes = []
 
+    @extend_schema(exclude=True)
     def get(self, request: Request) -> Response:
         result = check_redis()
         is_ok = result["status"] == "ok"
@@ -202,6 +209,7 @@ class CeleryHealthView(APIView):
     authentication_classes = []
     permission_classes = []
 
+    @extend_schema(exclude=True)
     def get(self, request: Request) -> Response:
         result = check_celery()
         is_ok = result["status"] == "ok"

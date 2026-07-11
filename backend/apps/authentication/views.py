@@ -14,6 +14,10 @@ from config.exceptions.auth import InvalidCredentialsException
 from apps.authentication.services.token_service import TokenService, TokenException
 from apps.authentication.services.mfa_service import MFAService
 from common.responses.standard_response import StandardResponse
+from rest_framework import serializers
+
+class EmptySerializer(serializers.Serializer):
+    pass
 
 class LoginAPIView(APIView):
     permission_classes = [AllowAny]
@@ -79,6 +83,7 @@ class RegisterAPIView(APIView):
 
 class LogoutAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = RefreshTokenSerializer
 
     @extend_schema(
         summary="User Logout",
@@ -208,6 +213,7 @@ class VerifyEmailAPIView(APIView):
 
 class MFASetupAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = EmptySerializer
 
     @extend_schema(
         summary="MFA Setup",
@@ -252,6 +258,7 @@ class MFAVerifyAPIView(APIView):
 
 class MFADisableAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = EmptySerializer
 
     @extend_schema(
         summary="MFA Disable",
@@ -266,6 +273,7 @@ class MFADisableAPIView(APIView):
 
 class MFARegenerateBackupCodesAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = EmptySerializer
 
     @extend_schema(
         summary="Regenerate Backup Codes",
@@ -286,6 +294,7 @@ class MFARegenerateBackupCodesAPIView(APIView):
 
 class OAuthLoginAPIView(APIView):
     permission_classes = [AllowAny]
+    serializer_class = EmptySerializer
 
     @extend_schema(
         summary="OAuth Login",

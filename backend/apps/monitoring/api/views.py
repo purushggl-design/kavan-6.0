@@ -31,12 +31,17 @@ class HealthCheckViewSet(viewsets.ReadOnlyModelViewSet):
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import serializers
+
+class EmptySerializer(serializers.Serializer):
+    pass
 
 class PlatformDashboardAPIView(APIView):
     """
     High-level platform metrics for operations.
     """
     permission_classes = [IsAuthenticated, HasPlatformPermission("VIEW_METRICS")()]
+    serializer_class = EmptySerializer
 
     def get(self, request):
         return Response({
@@ -51,6 +56,7 @@ class SOCDashboardAPIView(APIView):
     Security Operations Center dashboard metrics.
     """
     permission_classes = [IsAuthenticated, HasPlatformPermission("VIEW_SECURITY_EVENTS")()]
+    serializer_class = EmptySerializer
 
     def get(self, request):
         try:
@@ -72,6 +78,7 @@ class TenantDashboardAPIView(APIView):
     Tenant-specific monitoring dashboard.
     """
     permission_classes = [IsAuthenticated]
+    serializer_class = EmptySerializer
 
     def get(self, request, tenant_id):
         return Response({

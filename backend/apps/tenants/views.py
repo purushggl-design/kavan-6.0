@@ -10,7 +10,10 @@ from apps.tenants.permissions import IsTenantAdmin
 
 class TenantListCreateAPIView(APIView):
     permission_classes = [IsTenantAdmin]
+    serializer_class = TenantSerializer
 
+    from drf_spectacular.utils import extend_schema
+    @extend_schema(operation_id="list_tenants")
     def get(self, request):
         tenants = TenantRepository.get_queryset()
         serializer = TenantSerializer(tenants, many=True)
@@ -28,14 +31,27 @@ class TenantListCreateAPIView(APIView):
 
 class TenantDetailAPIView(APIView):
     permission_classes = [IsTenantAdmin]
+    serializer_class = TenantSerializer
 
+    from drf_spectacular.utils import extend_schema
+    @extend_schema(operation_id="retrieve_tenant")
     def get(self, request, pk):
         tenant = TenantRepository.get_by_id(pk)
         if not tenant: return Response(status=404)
         return Response({'success': True, 'data': TenantSerializer(tenant).data})
 
+from drf_spectacular.utils import extend_schema
+
 class TenantFreezeAPIView(APIView):
     permission_classes = [IsTenantAdmin]
+
+    from rest_framework import serializers
+    class DummySerializer(serializers.Serializer):
+        pass
+        
+    serializer_class = DummySerializer
+
+    @extend_schema(request=DummySerializer, responses={200: {"type": "object", "properties": {"success": {"type": "boolean"}, "message": {"type": "string"}}}})
 
     def post(self, request, pk):
         tenant = TenantRepository.get_by_id(pk)

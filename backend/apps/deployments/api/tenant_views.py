@@ -5,11 +5,14 @@ from drf_spectacular.utils import extend_schema
 from apps.deployments.models import Deployment
 from apps.deployments.services.deployment_service import DeploymentService
 
+from apps.deployments.api.serializers import DeploymentSerializer
+
 class TenantDeploymentViewSet(viewsets.ReadOnlyModelViewSet):
     """
     Tenant APIs for managing their own deployments.
     """
     queryset = Deployment.objects.none() # Scoped via middleware in reality
+    serializer_class = DeploymentSerializer
 
     @extend_schema(summary="Deploy Product manually")
     @action(detail=True, methods=['post'])

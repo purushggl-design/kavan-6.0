@@ -5,6 +5,96 @@ info:
   description: KAVAN v6.0 Enterprise Multi-tenant Product Launch & Management Platform
     Infrastructure API
 paths:
+  /api/v1/accounts/:
+    get:
+      operationId: api_v1_accounts_list
+      summary: List Users
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/accounts/{id}/:
+    get:
+      operationId: api_v1_accounts_retrieve
+      summary: Get User
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: api_v1_accounts_update
+      summary: Update User
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/v1/audit/:
+    get:
+      operationId: api_v1_audit_list
+      summary: List Audit Events
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditEvent'
+          description: ''
   /api/v1/auth/forgot-password/:
     post:
       operationId: api_v1_auth_forgot_password_create
@@ -25,6 +115,7 @@ paths:
               $ref: '#/components/schemas/ForgotPasswordRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -52,6 +143,7 @@ paths:
               $ref: '#/components/schemas/LoginRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -68,13 +160,52 @@ paths:
       summary: User Logout
       tags:
       - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenRequest'
+        required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
           description: Logout successful
         '401':
           description: Authentication credentials were not provided or are invalid
+  /api/v1/auth/mfa/backup-codes/:
+    post:
+      operationId: api_v1_auth_mfa_backup_codes_create
+      description: Invalidates old backup codes and generates new ones.
+      summary: Regenerate Backup Codes
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: Backup codes regenerated
+  /api/v1/auth/mfa/disable/:
+    post:
+      operationId: api_v1_auth_mfa_disable_create
+      description: Disables MFA for the current user.
+      summary: MFA Disable
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: MFA disabled successfully
   /api/v1/auth/mfa/setup/:
     post:
       operationId: api_v1_auth_mfa_setup_create
@@ -84,15 +215,16 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: Returns OTP URI for QR code generation
+          description: Returns OTP URI and base64 QR code
   /api/v1/auth/mfa/verify/:
     post:
       operationId: api_v1_auth_mfa_verify_create
-      description: Verifies the OTP during MFA setup or login.
-      summary: MFA Verify
+      description: Verifies the OTP during MFA setup and activates MFA.
+      summary: MFA Verify Setup
       tags:
       - api
       requestBody:
@@ -108,10 +240,11 @@ paths:
               $ref: '#/components/schemas/MFARequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
       responses:
         '200':
-          description: MFA verified successfully
+          description: MFA verified successfully, returns backup codes
         '400':
           description: Invalid OTP
   /api/v1/auth/oauth/login/:
@@ -122,6 +255,7 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -148,6 +282,7 @@ paths:
               $ref: '#/components/schemas/RefreshTokenRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -177,6 +312,7 @@ paths:
               $ref: '#/components/schemas/RegisterRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -204,6 +340,7 @@ paths:
               $ref: '#/components/schemas/ResetPasswordRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -231,6 +368,7 @@ paths:
               $ref: '#/components/schemas/VerifyEmailRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -238,6 +376,48 @@ paths:
           description: Email verified successfully
         '400':
           description: Validation error or invalid token
+  /api/v1/devices/:
+    get:
+      operationId: api_v1_devices_list
+      summary: List My Devices
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Device'
+          description: ''
+  /api/v1/devices/{id}/:
+    delete:
+      operationId: api_v1_devices_destroy
+      summary: Delete Device
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
   /api/v1/marketplace/:
     get:
       operationId: api_v1_marketplace_list
@@ -258,6 +438,7 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -282,6 +463,7 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -319,6 +501,7 @@ paths:
               $ref: '#/components/schemas/ProductRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -356,6 +539,7 @@ paths:
               $ref: '#/components/schemas/ProductRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -393,6 +577,7 @@ paths:
               $ref: '#/components/schemas/ProductRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -418,6 +603,7 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -431,6 +617,7 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -448,6 +635,7 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -465,6 +653,7 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -482,6 +671,7 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -499,6 +689,7 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -516,6 +707,7 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
       - {}
       responses:
@@ -525,12 +717,53 @@ paths:
               schema:
                 $ref: '#/components/schemas/Product'
           description: ''
-  /api/v1/platform/products/:
+  /api/v1/monitoring/dashboards/platform/:
     get:
-      operationId: api_v1_platform_products_list
-      description: |-
-        Platform APIs for managing products in the KAVAN ecosystem.
-        Requires SUPER_ADMIN permissions.
+      operationId: api_v1_monitoring_dashboards_platform_retrieve
+      description: High-level platform metrics for operations.
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/monitoring/dashboards/soc/:
+    get:
+      operationId: api_v1_monitoring_dashboards_soc_retrieve
+      description: Security Operations Center dashboard metrics.
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/monitoring/dashboards/tenant/{tenant_id}/:
+    get:
+      operationId: api_v1_monitoring_dashboards_tenant_retrieve
+      description: Tenant-specific monitoring dashboard.
+      parameters:
+      - in: path
+        name: tenant_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/v1/monitoring/events/:
+    get:
+      operationId: api_v1_monitoring_events_list
+      description: API for viewing system events (Layer 7).
       parameters:
       - name: page
         required: false
@@ -547,8 +780,543 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEventList'
+          description: ''
+  /api/v1/monitoring/events/{id}/:
+    get:
+      operationId: api_v1_monitoring_events_retrieve
+      description: API for viewing system events (Layer 7).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+          description: ''
+  /api/v1/monitoring/health-checks/:
+    get:
+      operationId: api_v1_monitoring_health_checks_list
+      description: API for viewing historical health checks.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedHealthCheckList'
+          description: ''
+  /api/v1/monitoring/health-checks/{id}/:
+    get:
+      operationId: api_v1_monitoring_health_checks_retrieve
+      description: API for viewing historical health checks.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheck'
+          description: ''
+  /api/v1/monitoring/metrics/:
+    get:
+      operationId: api_v1_monitoring_metrics_list
+      description: API for viewing system metrics (Layer 7).
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMetricList'
+          description: ''
+  /api/v1/monitoring/metrics/{id}/:
+    get:
+      operationId: api_v1_monitoring_metrics_retrieve
+      description: API for viewing system metrics (Layer 7).
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Metric'
+          description: ''
+  /api/v1/platform/deployments/:
+    get:
+      operationId: api_v1_platform_deployments_list
+      description: |-
+        Platform APIs for managing all deployments in the KAVAN ecosystem.
+        Requires deployment:manage platform permission.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDeploymentList'
+          description: ''
+    post:
+      operationId: api_v1_platform_deployments_create
+      description: |-
+        Platform APIs for managing all deployments in the KAVAN ecosystem.
+        Requires deployment:manage platform permission.
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+          description: ''
+  /api/v1/platform/deployments/{id}/:
+    get:
+      operationId: api_v1_platform_deployments_retrieve
+      description: |-
+        Platform APIs for managing all deployments in the KAVAN ecosystem.
+        Requires deployment:manage platform permission.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+          description: ''
+    put:
+      operationId: api_v1_platform_deployments_update
+      description: |-
+        Platform APIs for managing all deployments in the KAVAN ecosystem.
+        Requires deployment:manage platform permission.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+          description: ''
+    patch:
+      operationId: api_v1_platform_deployments_partial_update
+      description: |-
+        Platform APIs for managing all deployments in the KAVAN ecosystem.
+        Requires deployment:manage platform permission.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDeploymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDeploymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDeploymentRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+          description: ''
+    delete:
+      operationId: api_v1_platform_deployments_destroy
+      description: |-
+        Platform APIs for managing all deployments in the KAVAN ecosystem.
+        Requires deployment:manage platform permission.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/platform/deployments/{id}/deploy/:
+    post:
+      operationId: api_v1_platform_deployments_deploy_create
+      description: |-
+        Platform APIs for managing all deployments in the KAVAN ecosystem.
+        Requires deployment:manage platform permission.
+      summary: Deploy Product manually
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+          description: ''
+  /api/v1/platform/deployments/{id}/isolate/:
+    post:
+      operationId: api_v1_platform_deployments_isolate_create
+      description: Action triggered by external SIEM/SOC to quarantine a compromised
+        deployment.
+      summary: Isolate Deployment (SOC Triggered)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+          description: ''
+  /api/v1/platform/deployments/{id}/restart/:
+    post:
+      operationId: api_v1_platform_deployments_restart_create
+      description: |-
+        Platform APIs for managing all deployments in the KAVAN ecosystem.
+        Requires deployment:manage platform permission.
+      summary: Restart Deployment
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+          description: ''
+  /api/v1/platform/deployments/{id}/rollback/:
+    post:
+      operationId: api_v1_platform_deployments_rollback_create
+      description: |-
+        Platform APIs for managing all deployments in the KAVAN ecosystem.
+        Requires deployment:manage platform permission.
+      summary: Rollback Deployment
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+          description: ''
+  /api/v1/platform/deployments/{id}/upgrade/:
+    post:
+      operationId: api_v1_platform_deployments_upgrade_create
+      description: |-
+        Platform APIs for managing all deployments in the KAVAN ecosystem.
+        Requires deployment:manage platform permission.
+      summary: Upgrade Deployment
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+          description: ''
+  /api/v1/platform/products/:
+    get:
+      operationId: api_v1_platform_products_list
+      description: |-
+        Platform APIs for managing products in the KAVAN ecosystem.
+        Requires product:manage platform permission (SUPER_ADMIN has this implicitly).
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
       responses:
         '200':
           content:
@@ -560,7 +1328,7 @@ paths:
       operationId: api_v1_platform_products_create
       description: |-
         Platform APIs for managing products in the KAVAN ecosystem.
-        Requires SUPER_ADMIN permissions.
+        Requires product:manage platform permission (SUPER_ADMIN has this implicitly).
       tags:
       - api
       requestBody:
@@ -576,8 +1344,8 @@ paths:
               $ref: '#/components/schemas/ProductRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '201':
           content:
@@ -590,7 +1358,7 @@ paths:
       operationId: api_v1_platform_products_retrieve
       description: |-
         Platform APIs for managing products in the KAVAN ecosystem.
-        Requires SUPER_ADMIN permissions.
+        Requires product:manage platform permission (SUPER_ADMIN has this implicitly).
       parameters:
       - in: path
         name: id
@@ -602,8 +1370,8 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -615,7 +1383,7 @@ paths:
       operationId: api_v1_platform_products_update
       description: |-
         Platform APIs for managing products in the KAVAN ecosystem.
-        Requires SUPER_ADMIN permissions.
+        Requires product:manage platform permission (SUPER_ADMIN has this implicitly).
       parameters:
       - in: path
         name: id
@@ -639,8 +1407,8 @@ paths:
               $ref: '#/components/schemas/ProductRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -652,7 +1420,7 @@ paths:
       operationId: api_v1_platform_products_partial_update
       description: |-
         Platform APIs for managing products in the KAVAN ecosystem.
-        Requires SUPER_ADMIN permissions.
+        Requires product:manage platform permission (SUPER_ADMIN has this implicitly).
       parameters:
       - in: path
         name: id
@@ -675,8 +1443,8 @@ paths:
             schema:
               $ref: '#/components/schemas/PatchedProductRequest'
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -688,7 +1456,7 @@ paths:
       operationId: api_v1_platform_products_destroy
       description: |-
         Platform APIs for managing products in the KAVAN ecosystem.
-        Requires SUPER_ADMIN permissions.
+        Requires product:manage platform permission (SUPER_ADMIN has this implicitly).
       parameters:
       - in: path
         name: id
@@ -700,8 +1468,8 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '204':
           description: No response body
@@ -721,8 +1489,8 @@ paths:
       tags:
       - api
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -758,8 +1526,8 @@ paths:
               $ref: '#/components/schemas/ProductRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -795,8 +1563,8 @@ paths:
               $ref: '#/components/schemas/ProductRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -832,8 +1600,8 @@ paths:
               $ref: '#/components/schemas/ProductRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -869,8 +1637,8 @@ paths:
               $ref: '#/components/schemas/ProductRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -906,8 +1674,8 @@ paths:
               $ref: '#/components/schemas/ProductRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -943,8 +1711,8 @@ paths:
               $ref: '#/components/schemas/ProductRequest'
         required: true
       security:
+      - jwtAuth: []
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -952,96 +1720,872 @@ paths:
               schema:
                 $ref: '#/components/schemas/Product'
           description: ''
-  /health/:
+  /api/v1/profiles/:
     get:
-      operationId: health_retrieve
-      description: |-
-        GET /health/
-
-        Full health check — checks database, Redis, and Celery.
-        Returns aggregate status and individual service statuses.
+      operationId: api_v1_profiles_list
+      summary: Get My Profile
       tags:
-      - health
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
       responses:
         '200':
-          description: No response body
-  /health/celery/:
-    get:
-      operationId: health_celery_retrieve
-      description: |-
-        GET /health/celery/
-
-        Celery worker health check.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserProfile'
+          description: ''
+    post:
+      operationId: api_v1_profiles_create
+      summary: Update My Profile
       tags:
-      - health
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserProfileRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserProfileRequest'
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
       responses:
         '200':
-          description: No response body
-  /health/db/:
-    get:
-      operationId: health_db_retrieve
-      description: |-
-        GET /health/db/
-
-        Database-specific health check.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+  /api/v1/rbac/{id}/role-assignments/:
+    delete:
+      operationId: api_v1_rbac_role_assignments_destroy
+      description: Requires rbac:manage permission.
+      summary: Revoke permission from platform role
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
       tags:
-      - health
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '204':
+          description: Deleted
+  /api/v1/rbac/my-permissions/:
+    get:
+      operationId: api_v1_rbac_my_permissions_retrieve
+      description: Returns the calling user's platform role and computed permissions.
+      summary: Get my effective permissions
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
       responses:
         '200':
-          description: No response body
-  /health/live/:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EffectivePermissions'
+          description: ''
+  /api/v1/rbac/platform-permissions/:
     get:
-      operationId: health_live_retrieve
-      description: |-
-        GET /health/live/
-
-        Kubernetes liveness probe.
-        Returns 200 if the Django process is alive.
-        Returns 503 only if the process is in a crash-loop.
+      operationId: api_v1_rbac_platform_permissions_list
+      description: Requires rbac:manage permission.
+      summary: List platform permissions
       tags:
-      - health
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
       responses:
         '200':
-          description: No response body
-  /health/ready/:
-    get:
-      operationId: health_ready_retrieve
-      description: |-
-        GET /health/ready/
-
-        Kubernetes readiness probe.
-        Returns 200 only when all critical services are reachable.
-        Load balancer will stop sending traffic if this returns non-2xx.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlatformPermission'
+          description: ''
+  /api/v1/rbac/platform-permissions/create/:
+    post:
+      operationId: api_v1_rbac_platform_permissions_create_create
+      description: Requires rbac:manage permission.
+      summary: Create platform permission
       tags:
-      - health
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformPermissionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PlatformPermissionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PlatformPermissionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformPermission'
+          description: ''
+  /api/v1/rbac/role-assignments/:
+    get:
+      operationId: api_v1_rbac_role_assignments_list
+      description: Requires rbac:manage permission.
+      summary: List platform role→permission assignments
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
       responses:
         '200':
-          description: No response body
-  /health/redis/:
-    get:
-      operationId: health_redis_retrieve
-      description: |-
-        GET /health/redis/
-
-        Redis-specific health check.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PlatformRolePermission'
+          description: ''
+  /api/v1/rbac/role-assignments/assign/:
+    post:
+      operationId: api_v1_rbac_role_assignments_assign_create
+      description: Requires rbac:manage permission.
+      summary: Assign permission to platform role
       tags:
-      - health
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlatformRolePermissionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PlatformRolePermissionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PlatformRolePermissionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformRolePermission'
+          description: ''
+  /api/v1/tenant/deployments/:
+    get:
+      operationId: api_v1_tenant_deployments_list
+      description: Tenant APIs for managing their own deployments.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
       responses:
         '200':
-          description: No response body
-  /health/system/:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDeploymentList'
+          description: ''
+  /api/v1/tenant/deployments/{id}/:
     get:
-      operationId: health_system_retrieve
-      description: |-
-        GET /health/system/
-        Returns real-time CPU, memory, disk usage, and thread metrics.
+      operationId: api_v1_tenant_deployments_retrieve
+      description: Tenant APIs for managing their own deployments.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
       tags:
-      - health
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+          description: ''
+  /api/v1/tenant/deployments/{id}/deploy/:
+    post:
+      operationId: api_v1_tenant_deployments_deploy_create
+      description: Tenant APIs for managing their own deployments.
+      summary: Deploy Product manually
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+          description: ''
+  /api/v1/tenant/deployments/{id}/restart/:
+    post:
+      operationId: api_v1_tenant_deployments_restart_create
+      description: Tenant APIs for managing their own deployments.
+      summary: Restart Deployment
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+          description: ''
+  /api/v1/tenant/deployments/{id}/status/:
+    get:
+      operationId: api_v1_tenant_deployments_status_retrieve
+      description: Tenant APIs for managing their own deployments.
+      summary: Get Deployment Status
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+          description: ''
+  /api/v1/tenants/:
+    get:
+      operationId: list_tenants
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+          description: ''
+    post:
+      operationId: api_v1_tenants_create
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TenantRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TenantRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+          description: ''
+  /api/v1/tenants/{id}/:
+    get:
+      operationId: retrieve_tenant
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+          description: ''
+  /api/v1/tenants/{id}/freeze/:
+    post:
+      operationId: api_v1_tenants_freeze_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+          description: ''
 components:
   schemas:
+    AuditEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        user_email:
+          type: string
+          format: email
+          readOnly: true
+          title: User Email (snapshot)
+          description: Denormalized email stored at event time. Preserved even if
+            user is later deleted.
+        event_type:
+          allOf:
+          - $ref: '#/components/schemas/AuditEventEventTypeEnum'
+          readOnly: true
+        success:
+          type: boolean
+          readOnly: true
+          description: False for failed attempts.
+        failure_reason:
+          type: string
+          readOnly: true
+          description: Short code for why the event failed, e.g. INVALID_PASSWORD.
+        ip_address:
+          type: string
+          readOnly: true
+          nullable: true
+        user_agent:
+          type: string
+          readOnly: true
+        device_id:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        location:
+          type: string
+          readOnly: true
+          description: Approximate geo location.
+        metadata:
+          readOnly: true
+          description: Event-specific structured context. e.g. {session_id, device_name,
+            failed_count}
+        tenant_id:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+          description: Populated by Layer 3 for tenant-scoped events.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Occurred At
+        user:
+          type: string
+          format: uuid
+          title: User ID
+          description: Null for events where user is unknown (e.g. failed login).
+          readOnly: true
+          nullable: true
+      required:
+      - created_at
+      - device_id
+      - event_type
+      - failure_reason
+      - id
+      - ip_address
+      - location
+      - metadata
+      - success
+      - tenant_id
+      - user
+      - user_agent
+      - user_email
+    AuditEventEventTypeEnum:
+      enum:
+      - LOGIN_SUCCESS
+      - LOGIN_FAILED
+      - LOGOUT
+      - LOGOUT_ALL
+      - TOKEN_REFRESHED
+      - TOKEN_REVOKED
+      - PASSWORD_CHANGED
+      - PASSWORD_RESET_REQUESTED
+      - PASSWORD_RESET_USED
+      - ACCOUNT_LOCKED
+      - ACCOUNT_UNLOCKED
+      - ACCOUNT_DISABLED
+      - ACCOUNT_SUSPENDED
+      - EMAIL_VERIFICATION_SENT
+      - EMAIL_VERIFIED
+      - MFA_ENABLED
+      - MFA_DISABLED
+      - MFA_VERIFIED
+      - MFA_FAILED
+      - BACKUP_CODE_USED
+      - BACKUP_CODES_REGENERATED
+      - NEW_DEVICE_DETECTED
+      - DEVICE_TRUSTED
+      - DEVICE_REMOVED
+      - SESSION_CREATED
+      - SESSION_EXPIRED
+      - SESSION_REVOKED
+      - PROFILE_UPDATED
+      - SERVICE_ACCOUNT_CREATED
+      - SERVICE_ACCOUNT_REVOKED
+      type: string
+      description: |-
+        * `LOGIN_SUCCESS` - Login Success
+        * `LOGIN_FAILED` - Login Failed
+        * `LOGOUT` - Logout
+        * `LOGOUT_ALL` - Logout All Sessions
+        * `TOKEN_REFRESHED` - Token Refreshed
+        * `TOKEN_REVOKED` - Token Revoked
+        * `PASSWORD_CHANGED` - Password Changed
+        * `PASSWORD_RESET_REQUESTED` - Password Reset Requested
+        * `PASSWORD_RESET_USED` - Password Reset Used
+        * `ACCOUNT_LOCKED` - Account Locked
+        * `ACCOUNT_UNLOCKED` - Account Unlocked
+        * `ACCOUNT_DISABLED` - Account Disabled
+        * `ACCOUNT_SUSPENDED` - Account Suspended
+        * `EMAIL_VERIFICATION_SENT` - Verification Email Sent
+        * `EMAIL_VERIFIED` - Email Verified
+        * `MFA_ENABLED` - MFA Enabled
+        * `MFA_DISABLED` - MFA Disabled
+        * `MFA_VERIFIED` - MFA Code Verified
+        * `MFA_FAILED` - MFA Verification Failed
+        * `BACKUP_CODE_USED` - Backup Code Used
+        * `BACKUP_CODES_REGENERATED` - Backup Codes Regenerated
+        * `NEW_DEVICE_DETECTED` - New Device Detected
+        * `DEVICE_TRUSTED` - Device Trusted
+        * `DEVICE_REMOVED` - Device Removed
+        * `SESSION_CREATED` - Session Created
+        * `SESSION_EXPIRED` - Session Expired
+        * `SESSION_REVOKED` - Session Revoked
+        * `PROFILE_UPDATED` - Profile Updated
+        * `SERVICE_ACCOUNT_CREATED` - Service Account Created
+        * `SERVICE_ACCOUNT_REVOKED` - Service Account Revoked
+    Deployment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier (UUID4)
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was first created.
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was last modified.
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        status:
+          $ref: '#/components/schemas/DeploymentStatusEnum'
+        version_tag:
+          type: string
+          maxLength: 100
+        tenant:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        product:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        tenant_product:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+          nullable: true
+        environment:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+          nullable: true
+        template:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+      required:
+      - created_at
+      - id
+      - product
+      - template
+      - tenant
+      - updated_at
+    DeploymentRequest:
+      type: object
+      properties:
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        status:
+          $ref: '#/components/schemas/DeploymentStatusEnum'
+        version_tag:
+          type: string
+          maxLength: 100
+        tenant:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        product:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        tenant_product:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+          nullable: true
+        environment:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+          nullable: true
+        template:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+      required:
+      - product
+      - template
+      - tenant
+    DeploymentStatusEnum:
+      enum:
+      - REQUESTED
+      - QUEUED
+      - VALIDATING
+      - PROVISIONING
+      - INSTALLING
+      - CONFIGURING
+      - STARTING
+      - HEALTH_CHECK
+      - RUNNING
+      - FAILED
+      - ROLLBACK
+      - ROLLED_BACK
+      type: string
+      description: |-
+        * `REQUESTED` - Requested
+        * `QUEUED` - Queued
+        * `VALIDATING` - Validating
+        * `PROVISIONING` - Provisioning
+        * `INSTALLING` - Installing
+        * `CONFIGURING` - Configuring
+        * `STARTING` - Starting
+        * `HEALTH_CHECK` - Health Check
+        * `RUNNING` - Running
+        * `FAILED` - Failed
+        * `ROLLBACK` - Rollback
+        * `ROLLED_BACK` - Rolled Back
+    Device:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        device_name:
+          type: string
+          readOnly: true
+          description: e.g. 'MacBook Pro', 'iPhone 15', 'Ubuntu Desktop'.
+        device_type:
+          allOf:
+          - $ref: '#/components/schemas/DeviceTypeEnum'
+          readOnly: true
+        os:
+          type: string
+          readOnly: true
+          title: Operating System
+          description: e.g. 'macOS 14.1', 'Windows 11', 'Android 14'.
+        browser:
+          type: string
+          readOnly: true
+          description: e.g. 'Chrome 126', 'Safari 17', 'Firefox 127'.
+        ip_address:
+          type: string
+          readOnly: true
+          nullable: true
+          title: Last Known IP
+        is_trusted:
+          type: boolean
+          readOnly: true
+          description: Becomes True after user acknowledges the new device.
+        last_seen_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          description: Updated on every login from this device.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was first created.
+      required:
+      - browser
+      - created_at
+      - device_name
+      - device_type
+      - id
+      - ip_address
+      - is_trusted
+      - last_seen_at
+      - os
+    DeviceTypeEnum:
+      enum:
+      - DESKTOP
+      - MOBILE
+      - TABLET
+      - CLI
+      - SERVICE
+      - UNKNOWN
+      type: string
+      description: |-
+        * `DESKTOP` - Desktop
+        * `MOBILE` - Mobile
+        * `TABLET` - Tablet
+        * `CLI` - CLI / Script
+        * `SERVICE` - Service / API
+        * `UNKNOWN` - Unknown
+    EffectivePermissions:
+      type: object
+      description: 'Read-only response: lists the calling user''s effective permissions.'
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        platform_role:
+          type: string
+          nullable: true
+        platform_permissions:
+          type: array
+          items:
+            type: string
+        tenant_id:
+          type: string
+          format: uuid
+          nullable: true
+        tenant_permissions:
+          type: array
+          items:
+            type: string
+      required:
+      - platform_permissions
+      - platform_role
+      - tenant_id
+      - tenant_permissions
+      - user_id
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier (UUID4)
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was first created.
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was last modified.
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        tenant_id:
+          type: string
+          format: uuid
+          nullable: true
+        user_id:
+          type: string
+          format: uuid
+          nullable: true
+        module:
+          type: string
+          maxLength: 100
+        event_type:
+          $ref: '#/components/schemas/EventEventTypeEnum'
+        severity:
+          $ref: '#/components/schemas/SeverityEnum'
+        resource:
+          type: string
+          nullable: true
+          maxLength: 255
+        action:
+          type: string
+          maxLength: 100
+        status:
+          type: string
+          maxLength: 50
+        metadata: {}
+      required:
+      - action
+      - created_at
+      - event_type
+      - id
+      - module
+      - status
+      - updated_at
+    EventEventTypeEnum:
+      enum:
+      - LOGIN
+      - LOGOUT
+      - FAILED_LOGIN
+      - DEPLOYMENT_STARTED
+      - DEPLOYMENT_FAILED
+      - DEPLOYMENT_SUCCESS
+      - RBAC_DENIED
+      - PRODUCT_PUBLISHED
+      - TENANT_CREATED
+      - USER_CREATED
+      - SYSTEM_ALERT
+      type: string
+      description: |-
+        * `LOGIN` - Login Success
+        * `LOGOUT` - Logout
+        * `FAILED_LOGIN` - Failed Login
+        * `DEPLOYMENT_STARTED` - Deployment Started
+        * `DEPLOYMENT_FAILED` - Deployment Failed
+        * `DEPLOYMENT_SUCCESS` - Deployment Success
+        * `RBAC_DENIED` - RBAC Denied
+        * `PRODUCT_PUBLISHED` - Product Published
+        * `TENANT_CREATED` - Tenant Created
+        * `USER_CREATED` - User Created
+        * `SYSTEM_ALERT` - System Alert
     ForgotPasswordRequest:
       type: object
       properties:
@@ -1051,6 +2595,53 @@ components:
           minLength: 1
       required:
       - email
+    HealthCheck:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier (UUID4)
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was first created.
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was last modified.
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        service_name:
+          type: string
+          maxLength: 100
+        status:
+          $ref: '#/components/schemas/HealthCheckStatusEnum'
+        latency_ms:
+          type: number
+          format: double
+          nullable: true
+        details: {}
+      required:
+      - created_at
+      - id
+      - service_name
+      - status
+      - updated_at
+    HealthCheckStatusEnum:
+      enum:
+      - HEALTHY
+      - WARNING
+      - CRITICAL
+      type: string
+      description: |-
+        * `HEALTHY` - Healthy
+        * `WARNING` - Warning
+        * `CRITICAL` - Critical
     LoginRequest:
       type: object
       properties:
@@ -1062,6 +2653,11 @@ components:
           type: string
           writeOnly: true
           minLength: 1
+        mfa_code:
+          type: string
+          writeOnly: true
+          minLength: 6
+          maxLength: 8
       required:
       - email
       - password
@@ -1152,6 +2748,221 @@ components:
           description: Unique identifier (UUID4)
       required:
       - product
+    Metric:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier (UUID4)
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was first created.
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was last modified.
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        tenant_id:
+          type: string
+          format: uuid
+          nullable: true
+        metric_type:
+          $ref: '#/components/schemas/MetricTypeEnum'
+        name:
+          type: string
+          maxLength: 100
+        value:
+          type: number
+          format: double
+        unit:
+          type: string
+          maxLength: 20
+        tags: {}
+      required:
+      - created_at
+      - id
+      - metric_type
+      - name
+      - unit
+      - updated_at
+      - value
+    MetricTypeEnum:
+      enum:
+      - CPU
+      - RAM
+      - DISK
+      - NETWORK
+      - DATABASE
+      - REDIS
+      - CELERY
+      - DOCKER
+      - CUSTOM
+      type: string
+      description: |-
+        * `CPU` - CPU Usage
+        * `RAM` - RAM Usage
+        * `DISK` - Disk Usage
+        * `NETWORK` - Network Traffic
+        * `DATABASE` - Database Metrics
+        * `REDIS` - Redis Metrics
+        * `CELERY` - Celery Queue
+        * `DOCKER` - Docker Metrics
+        * `CUSTOM` - Custom Metric
+    PaginatedDeploymentList:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Deployment'
+        errors:
+          type: 'null'
+        meta:
+          type: object
+          properties:
+            pagination:
+              type: object
+              properties:
+                page:
+                  type: integer
+                page_size:
+                  type: integer
+                total_count:
+                  type: integer
+                total_pages:
+                  type: integer
+                has_next:
+                  type: boolean
+                has_previous:
+                  type: boolean
+                next_url:
+                  type: string
+                  nullable: true
+                previous_url:
+                  type: string
+                  nullable: true
+    PaginatedEventList:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+        errors:
+          type: 'null'
+        meta:
+          type: object
+          properties:
+            pagination:
+              type: object
+              properties:
+                page:
+                  type: integer
+                page_size:
+                  type: integer
+                total_count:
+                  type: integer
+                total_pages:
+                  type: integer
+                has_next:
+                  type: boolean
+                has_previous:
+                  type: boolean
+                next_url:
+                  type: string
+                  nullable: true
+                previous_url:
+                  type: string
+                  nullable: true
+    PaginatedHealthCheckList:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/HealthCheck'
+        errors:
+          type: 'null'
+        meta:
+          type: object
+          properties:
+            pagination:
+              type: object
+              properties:
+                page:
+                  type: integer
+                page_size:
+                  type: integer
+                total_count:
+                  type: integer
+                total_pages:
+                  type: integer
+                has_next:
+                  type: boolean
+                has_previous:
+                  type: boolean
+                next_url:
+                  type: string
+                  nullable: true
+                previous_url:
+                  type: string
+                  nullable: true
+    PaginatedMetricList:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Metric'
+        errors:
+          type: 'null'
+        meta:
+          type: object
+          properties:
+            pagination:
+              type: object
+              properties:
+                page:
+                  type: integer
+                page_size:
+                  type: integer
+                total_count:
+                  type: integer
+                total_pages:
+                  type: integer
+                has_next:
+                  type: boolean
+                has_previous:
+                  type: boolean
+                next_url:
+                  type: string
+                  nullable: true
+                previous_url:
+                  type: string
+                  nullable: true
     PaginatedProductList:
       type: object
       properties:
@@ -1189,6 +3000,39 @@ components:
                 previous_url:
                   type: string
                   nullable: true
+    PatchedDeploymentRequest:
+      type: object
+      properties:
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        status:
+          $ref: '#/components/schemas/DeploymentStatusEnum'
+        version_tag:
+          type: string
+          maxLength: 100
+        tenant:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        product:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+        tenant_product:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+          nullable: true
+        environment:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
+          nullable: true
+        template:
+          type: string
+          format: uuid
+          description: Unique identifier (UUID4)
     PatchedProductRequest:
       type: object
       properties:
@@ -1221,7 +3065,7 @@ components:
           type: string
           maxLength: 255
         status:
-          $ref: '#/components/schemas/StatusEnum'
+          $ref: '#/components/schemas/ProductStatusEnum'
         visibility:
           $ref: '#/components/schemas/VisibilityEnum'
         logo:
@@ -1259,6 +3103,74 @@ components:
           format: uuid
           description: Unique identifier (UUID4)
           nullable: true
+    PlatformPermission:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          description: e.g., platform:suspend_tenant
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 255
+      required:
+      - code
+      - description
+      - id
+    PlatformPermissionRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          description: e.g., platform:suspend_tenant
+          maxLength: 100
+        description:
+          type: string
+          minLength: 1
+          maxLength: 255
+      required:
+      - code
+      - description
+    PlatformRolePermission:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        role:
+          type: string
+          maxLength: 32
+        permission:
+          type: string
+          format: uuid
+        permission_detail:
+          allOf:
+          - $ref: '#/components/schemas/PlatformPermission'
+          readOnly: true
+      required:
+      - id
+      - permission
+      - permission_detail
+      - role
+    PlatformRolePermissionRequest:
+      type: object
+      properties:
+        role:
+          type: string
+          minLength: 1
+          maxLength: 32
+        permission:
+          type: string
+          format: uuid
+      required:
+      - permission
+      - role
     Product:
       type: object
       properties:
@@ -1316,7 +3228,7 @@ components:
           type: string
           maxLength: 255
         status:
-          $ref: '#/components/schemas/StatusEnum'
+          $ref: '#/components/schemas/ProductStatusEnum'
         visibility:
           $ref: '#/components/schemas/VisibilityEnum'
         logo:
@@ -1452,7 +3364,7 @@ components:
           type: string
           maxLength: 255
         status:
-          $ref: '#/components/schemas/StatusEnum'
+          $ref: '#/components/schemas/ProductStatusEnum'
         visibility:
           $ref: '#/components/schemas/VisibilityEnum'
         logo:
@@ -1494,6 +3406,16 @@ components:
       - code
       - name
       - slug
+    ProductStatusEnum:
+      enum:
+      - DRAFT
+      - PUBLISHED
+      - ARCHIVED
+      type: string
+      description: |-
+        * `DRAFT` - Draft
+        * `PUBLISHED` - Published
+        * `ARCHIVED` - Archived
     ProductVersion:
       type: object
       properties:
@@ -1675,16 +3597,337 @@ components:
       - confirm_password
       - password
       - token
-    StatusEnum:
+    SeverityEnum:
       enum:
-      - DRAFT
-      - PUBLISHED
-      - ARCHIVED
+      - INFO
+      - LOW
+      - MEDIUM
+      - HIGH
+      - CRITICAL
       type: string
       description: |-
-        * `DRAFT` - Draft
-        * `PUBLISHED` - Published
+        * `INFO` - Info
+        * `LOW` - Low
+        * `MEDIUM` - Medium
+        * `HIGH` - High
+        * `CRITICAL` - Critical
+    Tenant:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          description: Unique identifier (UUID4)
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was first created.
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was last modified.
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        tenant_code:
+          type: string
+          maxLength: 50
+        tenant_name:
+          type: string
+          maxLength: 255
+        company_name:
+          type: string
+          maxLength: 255
+        company_email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        company_phone:
+          type: string
+          nullable: true
+          maxLength: 50
+        company_domain:
+          type: string
+          maxLength: 255
+        company_logo:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+        timezone:
+          type: string
+          maxLength: 100
+        language:
+          type: string
+          maxLength: 10
+        currency:
+          type: string
+          maxLength: 3
+        tenant_status:
+          $ref: '#/components/schemas/TenantStatusEnum'
+        owner:
+          type: string
+          format: uuid
+          title: User ID
+          description: Unique identifier (UUID4). Never changes.
+      required:
+      - company_domain
+      - company_name
+      - created_at
+      - id
+      - owner
+      - tenant_code
+      - tenant_name
+      - updated_at
+    TenantRequest:
+      type: object
+      properties:
+        is_active:
+          type: boolean
+          description: False means this record has been soft-deleted.
+        tenant_code:
+          type: string
+          minLength: 1
+          maxLength: 50
+        tenant_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        company_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        company_email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        company_phone:
+          type: string
+          nullable: true
+          maxLength: 50
+        company_domain:
+          type: string
+          minLength: 1
+          maxLength: 255
+        company_logo:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+        timezone:
+          type: string
+          minLength: 1
+          maxLength: 100
+        language:
+          type: string
+          minLength: 1
+          maxLength: 10
+        currency:
+          type: string
+          minLength: 1
+          maxLength: 3
+        tenant_status:
+          $ref: '#/components/schemas/TenantStatusEnum'
+        owner:
+          type: string
+          format: uuid
+          title: User ID
+          description: Unique identifier (UUID4). Never changes.
+      required:
+      - company_domain
+      - company_name
+      - owner
+      - tenant_code
+      - tenant_name
+    TenantStatusEnum:
+      enum:
+      - PENDING
+      - APPROVED
+      - ACTIVE
+      - WARNING
+      - READ_ONLY
+      - SUSPENDED
+      - ARCHIVED
+      - DELETED
+      type: string
+      description: |-
+        * `PENDING` - Pending
+        * `APPROVED` - Approved
+        * `ACTIVE` - Active
+        * `WARNING` - Warning
+        * `READ_ONLY` - Read Only
+        * `SUSPENDED` - Suspended
         * `ARCHIVED` - Archived
+        * `DELETED` - Deleted
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+          title: User ID
+          description: Unique identifier (UUID4). Never changes.
+        email:
+          type: string
+          format: email
+          readOnly: true
+          title: Email Address
+          description: Primary identifier used for login.
+        first_name:
+          type: string
+          maxLength: 64
+        last_name:
+          type: string
+          maxLength: 64
+        status:
+          allOf:
+          - $ref: '#/components/schemas/UserStatusEnum'
+          readOnly: true
+          title: Account Status
+          description: |-
+            User lifecycle state. See UserStatus enum.
+
+            * `PENDING` - Pending Email Verification
+            * `VERIFIED` - Email Verified — Awaiting Activation
+            * `ACTIVE` - Active
+            * `LOCKED` - Temporarily Locked
+            * `SUSPENDED` - Manually Suspended by Admin
+            * `DISABLED` - Permanently Disabled
+            * `DELETED` - Soft Deleted
+        mfa_enabled:
+          type: boolean
+          readOnly: true
+          description: True when TOTP MFA is active for this account.
+        last_login_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          description: Timestamp of the most recent successful login.
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was first created.
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Timestamp when this record was last modified.
+      required:
+      - created_at
+      - email
+      - id
+      - last_login_at
+      - mfa_enabled
+      - status
+      - updated_at
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        avatar_url:
+          type: string
+          format: uri
+          description: URL to the user's profile picture.
+          maxLength: 200
+        bio:
+          type: string
+          maxLength: 500
+        timezone:
+          type: string
+          description: IANA timezone identifier, e.g. 'Asia/Kolkata'.
+          maxLength: 64
+        language:
+          type: string
+          description: BCP 47 language tag, e.g. 'en', 'hi', 'ta'.
+          maxLength: 16
+        date_format:
+          type: string
+          description: Preferred date display format.
+          maxLength: 32
+        email_notifications:
+          type: boolean
+          description: Receive transactional emails (login alerts, etc.).
+        push_notifications:
+          type: boolean
+          description: Receive browser/mobile push notifications.
+        marketing_emails:
+          type: boolean
+          description: Opt-in to product news and promotional content.
+      required:
+      - id
+    UserProfileRequest:
+      type: object
+      properties:
+        avatar_url:
+          type: string
+          format: uri
+          description: URL to the user's profile picture.
+          maxLength: 200
+        bio:
+          type: string
+          maxLength: 500
+        timezone:
+          type: string
+          minLength: 1
+          description: IANA timezone identifier, e.g. 'Asia/Kolkata'.
+          maxLength: 64
+        language:
+          type: string
+          minLength: 1
+          description: BCP 47 language tag, e.g. 'en', 'hi', 'ta'.
+          maxLength: 16
+        date_format:
+          type: string
+          minLength: 1
+          description: Preferred date display format.
+          maxLength: 32
+        email_notifications:
+          type: boolean
+          description: Receive transactional emails (login alerts, etc.).
+        push_notifications:
+          type: boolean
+          description: Receive browser/mobile push notifications.
+        marketing_emails:
+          type: boolean
+          description: Opt-in to product news and promotional content.
+    UserStatusEnum:
+      enum:
+      - PENDING
+      - VERIFIED
+      - ACTIVE
+      - LOCKED
+      - SUSPENDED
+      - DISABLED
+      - DELETED
+      type: string
+      description: |-
+        * `PENDING` - Pending Email Verification
+        * `VERIFIED` - Email Verified — Awaiting Activation
+        * `ACTIVE` - Active
+        * `LOCKED` - Temporarily Locked
+        * `SUSPENDED` - Manually Suspended by Admin
+        * `DISABLED` - Permanently Disabled
+        * `DELETED` - Soft Deleted
+    UserUpdateRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 64
+        last_name:
+          type: string
+          maxLength: 64
     VerifyEmailRequest:
       type: object
       properties:
@@ -1708,3 +3951,7 @@ components:
       type: apiKey
       in: cookie
       name: sessionid
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
