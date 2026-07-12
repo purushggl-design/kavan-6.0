@@ -10,10 +10,10 @@ interface Props {
 
 export const PermissionGuard: React.FC<Props> = ({ permission, children }) => {
   const permissions = useSelector((state: RootState) => state.auth.permissions);
-  const platformRole = useSelector((state: RootState) => state.auth.platformRole);
+  const role = useSelector((state: RootState) => state.auth.role);
 
   // Implicit Super Admin override
-  if (platformRole === 'SUPER_ADMIN') {
+  if (role === 'SUPER_ADMIN') {
     return <>{children}</>;
   }
 

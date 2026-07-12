@@ -65,6 +65,9 @@ CACHES = {
 # ============================================================
 # CELERY — Eager execution for local debugging
 # Tasks run synchronously in dev (no broker/Redis needed).
+# Ensure no broker is required in dev if not available
+CELERY_BROKER_URL = "memory://"
+CELERY_RESULT_BACKEND = "cache+memory://"
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True
 

@@ -54,6 +54,8 @@ class AuthService:
                 "email": user.email,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
+                "platform_role": user.platform_role,
+                "tenant_id": str(user.tenant_id) if user.tenant_id else None,
             },
             "mfa_required": getattr(user, 'mfa_enabled', False)
         }

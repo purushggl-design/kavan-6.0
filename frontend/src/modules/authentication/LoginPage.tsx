@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useAuth } from '../../context/AuthContext';
-import { setAuth } from '../../store/authSlice';
+import { setCredentials } from '../../store/authSlice';
 import './LoginPage.css';
 
 export const LoginPage: React.FC = () => {
@@ -29,13 +29,13 @@ export const LoginPage: React.FC = () => {
       
       // Sync user into Redux store for PermissionGuard
       const storedUser = localStorage.getItem('user');
-      if (storedUser) {
+      const token = localStorage.getItem('access_token');
+      if (storedUser && token) {
         const userData = JSON.parse(storedUser);
-        dispatch(setAuth({
+        dispatch(setCredentials({
           user: userData,
-          platformRole: userData.platform_role,
+          accessToken: token,
           permissions: [],
-          isAuthenticated: true,
         }));
       }
 

@@ -45,5 +45,8 @@ class EventBusService:
         }
 
         # Dispatch to Celery queue
-        process_event_task.delay(payload)
-        logger.debug(f"Event published to bus: {module} | {event_type}")
+        try:
+            process_event_task.delay(payload)
+            logger.debug(f"Event published to bus: {module} | {event_type}")
+        except Exception as e:
+            logger.error(f"Failed to publish event to bus: {e}")

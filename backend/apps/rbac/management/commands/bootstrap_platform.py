@@ -190,7 +190,7 @@ class Command(BaseCommand):
                     is_latest=True,
                     status="ACTIVE",
                 )
-                MarketplaceListing.objects.create(product=product)
+                MarketplaceListing.objects.get_or_create(product=product)
             else:
                 self.stdout.write(f"  ~ Product already exists: {product.name}")
 
