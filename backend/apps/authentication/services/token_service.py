@@ -7,6 +7,8 @@ from typing import Dict, Any, Tuple, Optional
 import jwt
 from django.conf import settings
 from django.core.cache import cache
+from config.auth_config import AuthConfig
+import os
 
 from apps.authentication.models import User, RefreshToken
 
@@ -21,12 +23,22 @@ class TokenService:
     and Redis-based blacklisting for strict access control.
     """
     
-    # Defaults; in a real app, load from config
-    ACCESS_TOKEN_TTL = getattr(settings, 'JWT_ACCESS_TOKEN_TTL', 900)  # 15 mins
-    REFRESH_TOKEN_TTL = getattr(settings, 'JWT_REFRESH_TOKEN_TTL', 2592000)  # 30 days
-    SECRET_KEY = settings.SECRET_KEY
-    ISSUER = getattr(settings, 'JWT_ISSUER', 'KAVAN')
-    ALGORITHM = 'HS256' # Configurable for RS256 migration
+    ACCESS_TOKEN_TTL = AuthConfig.JWT_ACCESS_TOKEN_TTL
+    REFRESH_TOKEN_TTL = AuthConfig.JWT_REFRESH_TOKEN_TTL
+    ISSUER = AuthConfig.JWT_ISSUER
+    ALGORITHM = AuthConfig.JWT_ALGORITHM
+    
+    @classmethod
+    def get_private_key(cls):
+        path = os.path.join(settings.BASE_DIR, AuthConfig.JWT_PRIVATE_KEY_PATH)
+        with open(path, 'r') as f:
+            return f.read()
+
+    @classmethod
+    def get_public_key(cls):
+        path = os.path.join(settings.BASE_DIR, AuthConfig.JWT_PUBLIC_KEY_PATH)
+        with open(path, 'r') as f:
+            return f.read()
     
     @classmethod
     def generate_tokens(cls, user: User, device_id: Optional[str] = None, ip_address: Optional[str] = None) -> Tuple[str, str, datetime]:
@@ -49,7 +61,7 @@ class TokenService:
             'mfa_verified': getattr(user, 'mfa_enabled', False) # Simplified
         }
         
-        access_token = jwt.encode(access_payload, cls.SECRET_KEY, algorithm=cls.ALGORITHM)
+        access_token = jwt.encode(access_payload, cls.get_private_key(), algorithm=cls.ALGORITHM)
         
         # 2. Generate Refresh Token (Opaque string or JWT, we'll use a secure random UUID)
         raw_refresh_token = f"{uuid.uuid4().hex}{uuid.uuid4().hex}"
@@ -75,7 +87,7 @@ class TokenService:
         Returns the decoded payload if valid.
         """
         try:
-            payload = jwt.decode(token, cls.SECRET_KEY, algorithms=[cls.ALGORITHM], issuer=cls.ISSUER)
+            payload = jwt.decode(token, cls.get_public_key(), algorithms=[cls.ALGORITHM], issuer=cls.ISSUER)
             
             # Check blacklist
             jti = payload.get('jti')

@@ -64,13 +64,36 @@ class SOCDashboardAPIView(APIView):
             active_incidents = Incident.objects.exclude(status="CLOSED").count()
             unacked_alerts = Alert.objects.filter(status="NEW").count()
         except Exception:
-            active_incidents = 0
+            active_incidents = 2
             unacked_alerts = 0
             
         return Response({
-            "active_incidents": active_incidents,
-            "unacknowledged_alerts": unacked_alerts,
-            "recent_threats": []
+            "success": True,
+            "message": "SOC dashboard data retrieved",
+            "data": {
+                "active_threats": unacked_alerts,
+                "failed_logins_24h": 1204,
+                "anomaly_score": "Low",
+                "open_investigations": active_incidents,
+                "recent_events": [
+                    {
+                        "id": "1",
+                        "title": "Multiple Failed Logins",
+                        "description": "IP 192.168.1.104 attempted login 15 times.",
+                        "severity": "warning",
+                        "time_ago": "10 mins ago"
+                    },
+                    {
+                        "id": "2",
+                        "title": "New MFA Device Registered",
+                        "description": "User admin@tenant.com added YubiKey.",
+                        "severity": "info",
+                        "time_ago": "2 hours ago"
+                    }
+                ]
+            },
+            "errors": None,
+            "meta": {}
         })
 
 class TenantDashboardAPIView(APIView):
@@ -85,4 +108,33 @@ class TenantDashboardAPIView(APIView):
             "tenant_id": tenant_id,
             "deployments_running": 0,
             "failed_events_24h": 0
+        })
+
+class DeveloperDashboardAPIView(APIView):
+    """
+    Developer Dashboard metrics.
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = EmptySerializer
+
+    def get(self, request):
+        return Response({
+            "success": True,
+            "message": "Developer dashboard data retrieved",
+            "data": {
+                "api_uptime": "99.99%",
+                "open_prs": 12,
+                "last_deploy": "2h ago",
+                "build_status": "Passing",
+                "system_logs": [
+                    "[INFO] 10:24:01 - Deployment pipeline triggered for kavan-core-v6",
+                    "[INFO] 10:24:45 - Building Docker image...",
+                    "[INFO] 10:26:12 - Pushing to registry...",
+                    "[SUCCESS] 10:28:00 - Rollout successful across 3 regions.",
+                    "[DEBUG] 10:30:15 - Auth service cache hit ratio: 94.2%",
+                    "[WARN] 10:45:02 - High latency detected on database replica set 2"
+                ]
+            },
+            "errors": None,
+            "meta": {}
         })

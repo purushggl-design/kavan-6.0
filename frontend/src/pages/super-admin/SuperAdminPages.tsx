@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { SectionHeader } from '@/components/enterprise/SectionHeader';
+import { StatCard } from '@/components/enterprise/StatCard';
 import { 
   Building2, 
   Shield, 
@@ -205,12 +207,11 @@ export const AnalyticsPage: React.FC = () => {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12">
       {/* Header section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Super Admin Analytics</h1>
-          <p className="text-muted-foreground mt-1">Enterprise-grade telemetry, revenue curves, and network API audit logs.</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
+      <SectionHeader 
+        title="Super Admin Analytics" 
+        description="Enterprise-grade telemetry, revenue curves, and network API audit logs."
+      >
+        <div className="flex flex-wrap items-center gap-2">
           {/* Timeframe Filters */}
           <div className="flex bg-muted rounded-md p-1 border">
             {[
@@ -240,7 +241,7 @@ export const AnalyticsPage: React.FC = () => {
             <Button size="sm" variant="outline" onClick={() => handleExport('png')}>PNG</Button>
           </div>
         </div>
-      </div>
+      </SectionHeader>
 
       {/* AI Insights Banner */}
       <Card className="border-primary/20 bg-primary/5 shadow-inner">
@@ -268,22 +269,22 @@ export const AnalyticsPage: React.FC = () => {
           { title: 'System Health', value: '99.98% uptime', trend: 'Stable', sub: 'Nodes healthy' },
           { title: 'Security Alerts', value: '0 Open', trend: '-25.0%', sub: 'SOC incidents' },
           { title: 'YoY Growth', value: '+11.8%', trend: 'Strong', sub: 'Subscription expansion' },
-        ].map((kpi, idx) => (
-          <Card key={idx} className="glass-card flex flex-col justify-between">
-            <CardHeader className="p-4 pb-2">
-              <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">{kpi.title}</span>
-            </CardHeader>
-            <CardContent className="p-4 pt-0">
-              <div className="text-lg font-bold tracking-tight">{kpi.value}</div>
-              <div className="flex items-center gap-1.5 mt-1">
-                <span className={`text-xs font-bold ${kpi.trend.startsWith('+') ? 'text-green-500' : kpi.trend.startsWith('-') ? 'text-green-500' : 'text-blue-500'}`}>
-                  {kpi.trend}
-                </span>
-                <span className="text-[10px] text-muted-foreground">{kpi.sub}</span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        ].map((kpi, idx) => {
+          const isPos = kpi.trend.startsWith('+') || kpi.trend === 'Stable' || kpi.trend === 'Strong';
+          const isNeg = kpi.trend.startsWith('-');
+          return (
+            <StatCard 
+              key={idx}
+              title={kpi.title}
+              value={kpi.value}
+              trend={{ 
+                value: kpi.trend, 
+                isPositive: kpi.title === 'Security Alerts' ? isNeg : isPos 
+              }}
+              description={kpi.sub}
+            />
+          );
+        })}
       </div>
 
       {/* Main Charts Row */}

@@ -1,7 +1,8 @@
 from rest_framework.routers import DefaultRouter
 from apps.monitoring.api.views import (
     EventViewSet, MetricViewSet, HealthCheckViewSet,
-    PlatformDashboardAPIView, SOCDashboardAPIView, TenantDashboardAPIView
+    PlatformDashboardAPIView, SOCDashboardAPIView, TenantDashboardAPIView,
+    DeveloperDashboardAPIView
 )
 
 router = DefaultRouter()
@@ -15,4 +16,5 @@ urlpatterns = router.urls + [
     path("dashboards/platform/", PlatformDashboardAPIView.as_view(), name="platform-dashboard"),
     path("dashboards/soc/", SOCDashboardAPIView.as_view(), name="soc-dashboard"),
     path("dashboards/tenant/<uuid:tenant_id>/", TenantDashboardAPIView.as_view(), name="tenant-dashboard"),
+    path("dashboards/developer/", DeveloperDashboardAPIView.as_view(), name="developer-dashboard"),
 ]

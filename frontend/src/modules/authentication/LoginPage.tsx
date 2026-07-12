@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { useAuth } from '../../context/AuthContext';
-import { setCredentials } from '../../store/authSlice';
+import { setCredentials } from '@/store/authSlice';
+import { apiClient } from '@/api/apiClient';
 import './LoginPage.css';
 
 export const LoginPage: React.FC = () => {
@@ -12,7 +12,6 @@ export const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  const { login } = useAuth();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,19 +24,16 @@ export const LoginPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await login({ email, password });
+      const response = await apiClient.post('/auth/login/', { email, password });
+      const authData = response.data.data;
       
-      // Sync user into Redux store for PermissionGuard
-      const storedUser = localStorage.getItem('user');
-      const token = localStorage.getItem('access_token');
-      if (storedUser && token) {
-        const userData = JSON.parse(storedUser);
-        dispatch(setCredentials({
-          user: userData,
-          accessToken: token,
-          permissions: [],
-        }));
-      }
+      dispatch(setCredentials({
+        user: authData.user,
+        tenant: authData.tenant,
+        permissions: [],
+        accessToken: authData.access_token,
+        refreshToken: authData.refresh_token
+      }));
 
       navigate(from, { replace: true });
     } catch (err: any) {

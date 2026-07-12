@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { useDispatch } from 'react-redux';
-import { logout as reduxLogout } from '../../store/authSlice';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectCurrentUser, logout } from '@/store/authSlice';
+import { apiClient } from '@/api/apiClient';
 import dashboardService, { DashboardMetrics } from '../../services/dashboardService';
 import './PlatformDashboard.css';
 
@@ -17,7 +17,7 @@ const NAV_ITEMS = [
 ];
 
 export const PlatformDashboard: React.FC = () => {
-  const { user, logout } = useAuth();
+  const user = useSelector(selectCurrentUser);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,8 +33,12 @@ export const PlatformDashboard: React.FC = () => {
   }, []);
 
   const handleLogout = async () => {
-    dispatch(reduxLogout());
-    await logout();
+    try {
+      await apiClient.post('/auth/logout/');
+    } catch (e) {
+      // Ignore
+    }
+    dispatch(logout());
     navigate('/login', { replace: true });
   };
 

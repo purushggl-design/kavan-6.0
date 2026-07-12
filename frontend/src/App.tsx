@@ -2,8 +2,6 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import { Provider } from 'react-redux';
 import { Toaster } from 'sonner';
 
-// Context & Auth
-import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { store } from './store';
 
@@ -65,8 +63,7 @@ import { DeveloperDashboard } from './pages/dashboards/DeveloperDashboard';
 function App() {
   return (
     <Provider store={store}>
-      <AuthProvider>
-        <BrowserRouter>
+      <BrowserRouter>
           <Routes>
             {/* Public routes */}
             <Route path="/login" element={<LoginPage />} />
@@ -145,9 +142,8 @@ function App() {
             {/* Default redirect */}
             <Route path="*" element={<Navigate to="/platform/dashboard" replace />} />
           </Routes>
-        </BrowserRouter>
         <Toaster position="top-right" richColors />
-      </AuthProvider>
+      </BrowserRouter>
     </Provider>
   );
 }
