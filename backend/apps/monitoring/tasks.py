@@ -37,8 +37,72 @@ def process_event_task(payload: dict):
         logger.error(f"Failed to process event from bus: {str(e)}")
         raise
 
+import requests
+from django.utils import timezone
+from apps.audit.models import AuditEvent, AuditEventType
+from apps.marketplace.models.application import TenantInstallation, InstallationStatus
+
 @shared_task
 def log_health_status():
+    """
+    Log general system health status.
+    """
+    logger.info("System health check performed successfully.")
+
+@shared_task
+def check_installation_health():
+    """
+    Periodic task to monitor the health of all RUNNING tenant installations.
+    """
+    installations = TenantInstallation.objects.filter(status=InstallationStatus.RUNNING)
+    
+    for install in installations:
+        try:
+            # Reconstruct the internal endpoint from the manifest
+            manifest = install.version.manifest
+            port = manifest.get('runtime', {}).get('container_port', 80)
+            health_path = manifest.get('runtime', {}).get('health_check_path', '/')
+            
+            # Use the route_path to find the internal host if needed, 
+            # or standard container hostname: kavan-{tenant.id}-{app.code}
+            container_name = f"kavan-{install.tenant.tenant_code}-{install.version.application.code}"
+            
+            # Using http://{container_name}:{port}{health_path} within Docker network
+            url = f"http://{container_name}:{port}{health_path}"
+            
+            response = requests.get(url, timeout=3)
+            
+            if response.status_code == 200:
+                # Still healthy, update timestamp
+                install.save(update_fields=['updated_at'])
+            else:
+                # Flip to failed
+                logger.warning(f"Installation {install.id} health check returned {response.status_code}")
+                _mark_installation_failed(install)
+                
+        except (requests.RequestException, requests.Timeout) as e:
+            # Connection error or timeout
+            logger.warning(f"Installation {install.id} health check failed: {e}")
+            _mark_installation_failed(install)
+            
+def _mark_installation_failed(install):
+    install.status = InstallationStatus.FAILED
+    install.save(update_fields=['status', 'updated_at'])
+    
+    # Audit log
+    AuditEvent.objects.create(
+        tenant_id=install.tenant.id,
+        event_type=AuditEventType.INSTALLATION_FAILED,
+        success=False,
+        failure_reason="HEALTH_CHECK_FAILED",
+        metadata={
+            "installation_id": str(install.id),
+            "reason": "Health check failed or timed out"
+        }
+    )
+
+@shared_task
+def log_health_status_legacy():
     from monitoring.health_checks import check_database, check_redis, check_celery
     db = check_database()
     redis = check_redis()

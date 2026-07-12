@@ -18,6 +18,7 @@ export const ENDPOINTS = {
   },
   MARKETPLACE: {
     PRODUCTS: '/marketplace/products/',
+    INSTALLATIONS: '/installations/',
   },
   MONITORING: {
     HEALTH: '/monitoring/health/',

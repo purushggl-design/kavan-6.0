@@ -2,9 +2,8 @@
 
 .platform-dashboard {
   display: flex;
-  min-height: 100vh;
-  background: #080b14;
-  font-family: 'Inter', system-ui, sans-serif;
+  flex-direction: column;
+  width: 100%;
 }
 
 /* ---- Sidebar ---- */
@@ -163,11 +162,9 @@
   background: rgba(239, 68, 68, 0.1);
 }
 
-/* ---- Main Content ---- */
 .dashboard-main {
   flex: 1;
-  padding: 40px 48px;
-  overflow-y: auto;
+  width: 100%;
 }
 
 .dashboard-header {

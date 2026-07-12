@@ -11,3 +11,7 @@ export const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+
+// Instantly finish hydration since we read from localStorage synchronously
+import { hydrationComplete } from './authSlice';
+store.dispatch(hydrationComplete());

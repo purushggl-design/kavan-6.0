@@ -10,6 +10,14 @@ from .product import (
     TenantProduct,
 )
 
+from .application import (
+    ApplicationStatus,
+    Application,
+    ApplicationVersion,
+    InstallationStatus,
+    TenantInstallation,
+)
+
 __all__ = [
     'ProductStatus',
     'ProductVisibility',
@@ -20,4 +28,11 @@ __all__ = [
     'ProductConfiguration',
     'MarketplaceListing',
     'TenantProduct',
+    
+    # New Application provisioning models
+    'ApplicationStatus',
+    'Application',
+    'ApplicationVersion',
+    'InstallationStatus',
+    'TenantInstallation',
 ]

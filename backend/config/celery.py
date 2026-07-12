@@ -38,6 +38,12 @@ app.conf.beat_schedule = {
         "schedule": crontab(minute="*/5"),
         "options": {"expires": 60},
     },
+    # Layer 2: Marketplace health check (every 20 seconds)
+    "check-installation-health": {
+        "task": "apps.monitoring.tasks.check_installation_health",
+        "schedule": 20.0, # Run every 20 seconds
+        "options": {"expires": 15},
+    },
     # Layer 2+ will add more scheduled tasks here
     # "send-daily-report": {
     #     "task": "apps.reports.tasks.send_daily_report",

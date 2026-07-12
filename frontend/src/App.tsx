@@ -52,6 +52,7 @@ import {
 // Shared Pages
 import { UserManagement } from './pages/users/UserManagement';
 import { OrganizationManagement } from './pages/organizations/OrganizationManagement';
+import { MyApps } from './pages/tenant/MyApps';
 import { ProfileSettings } from './pages/profile/ProfileSettings';
 import { Notifications } from './pages/notifications/Notifications';
 import { PermissionMatrix } from './pages/permissions/PermissionMatrix';
@@ -90,6 +91,7 @@ function App() {
               <Route path="platform/marketplace" element={<MarketplacePage />} />
               <Route path="users" element={<UserManagement />} />
               <Route path="organizations" element={<OrganizationManagement />} />
+              <Route path="my-apps" element={<MyApps />} />
               <Route path="profile" element={<ProfileSettings />} />
               <Route path="notifications" element={<Notifications />} />
               <Route path="permissions" element={<PermissionMatrix />} />

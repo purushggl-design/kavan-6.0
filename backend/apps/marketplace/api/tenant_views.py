@@ -3,7 +3,10 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from apps.marketplace.models.product import Product, TenantProduct
-from apps.marketplace.api.serializers import ProductSerializer, TenantProductSerializer
+from apps.marketplace.api.serializers import (
+    ProductSerializer, TenantProductSerializer, MarketplaceCatalogSerializer,
+    TenantInstallationSafeSerializer
+)
 from apps.marketplace.services.subscription_service import SubscriptionService
 
 class TenantMarketplaceViewSet(viewsets.ReadOnlyModelViewSet):
@@ -82,3 +85,92 @@ class TenantMarketplaceViewSet(viewsets.ReadOnlyModelViewSet):
     @action(detail=True, methods=['put'])
     def config(self, request, pk=None):
         return Response({"status": "Configuration updated"})
+
+from rest_framework import generics
+from apps.marketplace.models.application import ApplicationVersion, TenantInstallation
+from apps.deployments.tasks import provision_tenant_service
+
+class MarketplaceCatalogView(generics.ListAPIView):
+    """
+    GET /api/v1/marketplace/catalog/
+    Public catalog for tenant users.
+    """
+    serializer_class = MarketplaceCatalogSerializer
+    # No permission class required other than IsAuthenticated (default)
+    
+    def get_queryset(self):
+        return ApplicationVersion.objects.filter(is_active=True)
+
+class MarketplaceInstallView(generics.CreateAPIView):
+    """
+    POST /api/v1/marketplace/install/{version_id}/
+    """
+    def create(self, request, *args, **kwargs):
+        version_id = self.kwargs.get('version_id')
+        try:
+            version = ApplicationVersion.objects.get(id=version_id, is_active=True)
+        except ApplicationVersion.DoesNotExist:
+            return Response({"error": "Version not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+        tenant_id = getattr(request.user, 'tenant_id', None)
+        if not tenant_id:
+            return Response({"error": "No tenant associated with user"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        from apps.tenants.models.tenant import Tenant
+        try:
+            tenant = Tenant.objects.get(id=tenant_id)
+        except Tenant.DoesNotExist:
+            return Response({"error": "Tenant does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Check if already installed
+        existing = TenantInstallation.objects.filter(tenant=tenant, version=version, status='RUNNING').first()
+        if existing:
+            return Response({"error": "Already installed"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # Create pending installation
+        installation = TenantInstallation.objects.create(
+            tenant=tenant,
+            version=version,
+            status='PENDING'
+        )
+        
+        # Fire celery task
+        provision_tenant_service.delay(installation.id)
+        
+        return Response({
+            "status": "provisioning",
+            "installation_id": installation.id
+        }, status=status.HTTP_202_ACCEPTED)
+
+from rest_framework.exceptions import NotFound
+
+class TenantInstallationListView(generics.ListAPIView):
+    """
+    GET /api/v1/installations/
+    """
+    serializer_class = TenantInstallationSafeSerializer
+
+    def get_queryset(self):
+        tenant_id = getattr(self.request.user, 'tenant_id', None)
+        if not tenant_id:
+            return TenantInstallation.objects.none()
+        return TenantInstallation.objects.filter(tenant_id=tenant_id)
+
+class TenantInstallationDetailView(generics.RetrieveAPIView):
+    """
+    GET /api/v1/installations/{id}/
+    """
+    serializer_class = TenantInstallationSafeSerializer
+
+    def get_object(self):
+        tenant_id = getattr(self.request.user, 'tenant_id', None)
+        if not tenant_id:
+            raise NotFound()
+            
+        try:
+            return TenantInstallation.objects.get(
+                id=self.kwargs.get('pk'),
+                tenant_id=tenant_id
+            )
+        except TenantInstallation.DoesNotExist:
+            raise NotFound()

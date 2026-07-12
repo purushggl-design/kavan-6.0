@@ -77,6 +77,9 @@ class AuditEventType(models.TextChoices):
     # Service Accounts (Layer 8 stub)
     SERVICE_ACCOUNT_CREATED = "SERVICE_ACCOUNT_CREATED", _("Service Account Created")
     SERVICE_ACCOUNT_REVOKED = "SERVICE_ACCOUNT_REVOKED", _("Service Account Revoked")
+    
+    # Marketplace
+    INSTALLATION_FAILED = "INSTALLATION_FAILED", _("Installation Failed")
 
 
 # ============================================================
@@ -223,7 +226,7 @@ class AuditEvent(models.Model):
 
     def save(self, *args, **kwargs):
         """Prevent updates to audit events (append-only)."""
-        if self.pk:
+        if not self._state.adding:
             raise PermissionError(
                 "AuditEvent records are immutable and cannot be updated."
             )

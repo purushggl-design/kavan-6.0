@@ -113,92 +113,34 @@ export const RolesPermissionsPage: React.FC = () => {
 // 3. Analytics Page
 export const AnalyticsPage: React.FC = () => {
   const [timeframe, setTimeframe] = useState<'today' | '7d' | '30d' | 'quarter' | 'year'>('30d');
-  const [tenantCount, setTenantCount] = useState<number>(0);
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   React.useEffect(() => {
-    tenantService.list().then(res => setTenantCount(res.count || res.data?.length || 0)).catch(() => {});
+    const fetchDashboard = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        const res = await fetch('http://127.0.0.1:8000/api/v1/monitoring/dashboards/platform/', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error('Failed to fetch analytics dashboard');
+        const json = await res.json();
+        setData(json.data);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboard();
   }, []);
 
-  // Mock data for 24 months revenue history
-  const monthlyRevenueData = [
-    { month: 'Jul 24', revenue: 28000, forecast: 28000 },
-    { month: 'Aug 24', revenue: 29500, forecast: 29500 },
-    { month: 'Sep 24', revenue: 31000, forecast: 31000 },
-    { month: 'Oct 24', revenue: 33400, forecast: 33400 },
-    { month: 'Nov 24', revenue: 34000, forecast: 34000 },
-    { month: 'Dec 24', revenue: 38200, forecast: 38200 },
-    { month: 'Jan 25', revenue: 39000, forecast: 39000 },
-    { month: 'Feb 25', revenue: 41200, forecast: 41200 },
-    { month: 'Mar 25', revenue: 42000, forecast: 42000 },
-    { month: 'Apr 25', revenue: 44900, forecast: 44900 },
-    { month: 'May 25', revenue: 47000, forecast: 47000 },
-    { month: 'Jun 25', revenue: 48290, forecast: 50500 }, // June 25 is current month
-  ];
+  if (loading) return <div className="text-foreground">Loading analytics dashboard...</div>;
+  if (error) return <div className="text-red-500">Error: {error}</div>;
+  if (!data) return null;
 
-  // Daily Users Growth
-  const userGrowthData = [
-    { day: '06/23', active: 7800, newRegs: 120 },
-    { day: '06/24', active: 7920, newRegs: 98 },
-    { day: '06/25', active: 8100, newRegs: 145 },
-    { day: '06/26', active: 8050, newRegs: 110 },
-    { day: '06/27', active: 8300, newRegs: 160 },
-    { day: '06/28', active: 8420, newRegs: 175 },
-    { day: '06/29', active: 8420, newRegs: 180 },
-  ];
-
-  // Org distributions
-  const orgDistributionData = [
-    { name: 'Enterprise', value: 15 },
-    { name: 'Startup', value: 20 },
-    { name: 'Education', value: 5 },
-    { name: 'Government', value: 4 },
-    { name: 'Healthcare', value: 6 },
-  ];
-  const ORG_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
-
-  // Subscription plan growth
-  const subscriptionPlans = [
-    { plan: 'Free', users: 3400, revenue: 0, growth: 5 },
-    { plan: 'Basic', users: 4100, revenue: 82000, growth: 12 },
-    { plan: 'Premium', users: 1900, revenue: 171000, growth: 18 },
-    { plan: 'Enterprise', users: 600, revenue: 326480, growth: 22 },
-  ];
-
-  // API Requests latency logs
-  const apiMonitoringLogs = [
-    { hour: '00:00', requests: 120000, errors: 4, latency: 15 },
-    { hour: '04:00', requests: 80000, errors: 1, latency: 12 },
-    { hour: '08:00', requests: 240000, errors: 12, latency: 18 },
-    { hour: '12:00', requests: 450000, errors: 28, latency: 24 },
-    { hour: '16:00', requests: 380000, errors: 15, latency: 19 },
-    { hour: '20:00', requests: 190000, errors: 8, latency: 14 },
-  ];
-
-  // Security incidents
-  const securityAnalyticsData = [
-    { category: 'Failed Logins', value: 124 },
-    { category: 'MFA Violations', value: 12 },
-    { category: 'Threat Blocked', value: 8 },
-    { category: 'SOC Incidents', value: 0 },
-  ];
-
-  // Tenants growth
-  const tenantGrowth = [
-    { month: 'Jan', active: 38, churn: 1 },
-    { month: 'Feb', active: 40, churn: 0 },
-    { month: 'Mar', active: 42, churn: 1 },
-    { month: 'Apr', active: 45, churn: 0 },
-    { month: 'May', active: 48, churn: 0 },
-    { month: 'Jun', active: 50, churn: 1 },
-  ];
-
-  // Region breakdown
-  const regionalData = [
-    { region: 'US East', active: 18 },
-    { region: 'US West', active: 12 },
-    { region: 'EU Central', active: 14 },
-    { region: 'APAC South', active: 6 },
-  ];
+  const { kpis, charts, audit_timeline } = data;
 
   const handleExport = (format: 'csv' | 'excel' | 'pdf' | 'png') => {
     toast.success(`Exporting platform analytics as ${format.toUpperCase()}...`);
@@ -259,19 +201,19 @@ export const AnalyticsPage: React.FC = () => {
       {/* KPI Cards Grid */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
         {[
-          { title: 'Total Organizations', value: `${tenantCount} Tenants`, trend: '+8.4%', sub: 'vs last month' },
-          { title: 'Total Users', value: '10,000', trend: '+12.1%', sub: 'vs last month' },
-          { title: 'Active Users', value: '8,420 Active', trend: '+15.2%', sub: '84.2% engagement' },
-          { title: 'Monthly Revenue', value: '$48,290.00', trend: '+18.0%', sub: 'MRR target reached' },
-          { title: 'Annual Forecast', value: '$579,480.00', trend: '+22.5%', sub: 'ARR run rate' },
-          { title: 'Active Sessions', value: '1,492', trend: '+5.3%', sub: 'Concurrent web users' },
-          { title: 'API Requests', value: '2.4M', trend: '+14.6%', sub: 'Last 30 days log' },
-          { title: 'System Health', value: '99.98% uptime', trend: 'Stable', sub: 'Nodes healthy' },
-          { title: 'Security Alerts', value: '0 Open', trend: '-25.0%', sub: 'SOC incidents' },
-          { title: 'YoY Growth', value: '+11.8%', trend: 'Strong', sub: 'Subscription expansion' },
+          { title: 'Total Organizations', value: `${kpis.total_tenants} Tenants`, trend: 'Real', sub: 'Verified DB query' },
+          { title: 'Total Users', value: kpis.total_users.toString(), trend: 'Real', sub: 'Verified DB query' },
+          { title: 'Active Users', value: kpis.active_users.toString(), trend: 'Real', sub: 'Verified DB query' },
+          { title: 'Monthly Revenue', value: `$${kpis.monthly_revenue.toFixed(2)}`, trend: 'Real', sub: 'Honest empty state' },
+          { title: 'Annual Forecast', value: `$${kpis.annual_forecast.toFixed(2)}`, trend: 'Real', sub: 'Honest empty state' },
+          { title: 'Active Sessions', value: kpis.active_sessions.toString(), trend: 'Real', sub: 'Honest empty state' },
+          { title: 'API Requests', value: kpis.api_requests.toString(), trend: 'Real', sub: 'Honest empty state' },
+          { title: 'System Health', value: 'Monitoring...', trend: 'Stable', sub: 'Needs real check' },
+          { title: 'Security Alerts', value: kpis.security_alerts.toString(), trend: kpis.security_alerts > 0 ? 'Warning' : 'Secure', sub: 'Unacknowledged Incidents' },
+          { title: 'YoY Growth', value: 'N/A', trend: 'Unknown', sub: 'Not enough data' },
         ].map((kpi, idx) => {
-          const isPos = kpi.trend.startsWith('+') || kpi.trend === 'Stable' || kpi.trend === 'Strong';
-          const isNeg = kpi.trend.startsWith('-');
+          const isPos = kpi.trend === 'Real' || kpi.trend === 'Secure';
+          const isNeg = kpi.trend === 'Warning';
           return (
             <StatCard 
               key={idx}
@@ -296,16 +238,22 @@ export const AnalyticsPage: React.FC = () => {
             <CardDescription>MRR trend history and forecast run rate.</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={monthlyRevenueData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} name="Revenue ($)" />
-                <Line type="monotone" dataKey="forecast" stroke="#10b981" strokeWidth={2} name="Forecast ($)" strokeDasharray="5 5" />
-              </LineChart>
-            </ResponsiveContainer>
+            {charts.monthly_revenue.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={charts.monthly_revenue}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={3} name="Revenue ($)" />
+                  <Line type="monotone" dataKey="forecast" stroke="#10b981" strokeWidth={2} name="Forecast ($)" strokeDasharray="5 5" />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg">
+                No revenue data available
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -316,16 +264,22 @@ export const AnalyticsPage: React.FC = () => {
             <CardDescription>Daily active users vs new workspace registrations.</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={userGrowthData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="day" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="active" stroke="#8b5cf6" strokeWidth={3} name="Active Users" />
-                <Line type="monotone" dataKey="newRegs" stroke="#f59e0b" strokeWidth={2} name="New Registrations" />
-              </LineChart>
-            </ResponsiveContainer>
+            {charts.user_growth.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={charts.user_growth}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="day" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="active" stroke="#8b5cf6" strokeWidth={3} name="Active Users" />
+                  <Line type="monotone" dataKey="newRegs" stroke="#f59e0b" strokeWidth={2} name="New Registrations" />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg">
+                No user growth data available
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -336,32 +290,40 @@ export const AnalyticsPage: React.FC = () => {
             <CardDescription>Tenant distribution classification.</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px] flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={orgDistributionData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={95}
-                  paddingAngle={4}
-                  dataKey="value"
-                >
-                  {orgDistributionData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={ORG_COLORS[index % ORG_COLORS.length]} />
+            {charts.org_distribution.length > 0 ? (
+              <>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={charts.org_distribution}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={95}
+                      paddingAngle={4}
+                      dataKey="value"
+                    >
+                      {charts.org_distribution.map((entry: any, index: number) => (
+                        <Cell key={`cell-${index}`} fill={['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][index % 5]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="flex flex-col gap-2 ml-4">
+                  {charts.org_distribution.map((entry: any, idx: number) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][idx % 5] }} />
+                      <span className="text-xs font-semibold">{entry.name} ({entry.value})</span>
+                    </div>
                   ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="flex flex-col gap-2 ml-4">
-              {orgDistributionData.map((entry, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: ORG_COLORS[idx % ORG_COLORS.length] }} />
-                  <span className="text-xs font-semibold">{entry.name} ({entry.value})</span>
                 </div>
-              ))}
-            </div>
+              </>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg">
+                No distribution data available
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -372,15 +334,21 @@ export const AnalyticsPage: React.FC = () => {
             <CardDescription>Consolidated revenue generation per active billing tier.</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={subscriptionPlans}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="plan" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} name="Revenue ($)" />
-              </BarChart>
-            </ResponsiveContainer>
+            {charts.subscription_plans.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={charts.subscription_plans}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="plan" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} name="Revenue ($)" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg">
+                No subscription data available
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -391,16 +359,22 @@ export const AnalyticsPage: React.FC = () => {
             <CardDescription>Average API endpoint response delay and errors.</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={apiMonitoringLogs}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="hour" />
-                <YAxis />
-                <Tooltip />
-                <Area type="monotone" dataKey="requests" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.1} name="Requests Count" />
-                <Area type="monotone" dataKey="latency" stroke="#ec4899" fill="#ec4899" fillOpacity={0.1} name="Avg Latency (ms)" />
-              </AreaChart>
-            </ResponsiveContainer>
+            {charts.api_monitoring_logs.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={charts.api_monitoring_logs}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="hour" />
+                  <YAxis />
+                  <Tooltip />
+                  <Area type="monotone" dataKey="requests" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.1} name="Requests Count" />
+                  <Area type="monotone" dataKey="latency" stroke="#ec4899" fill="#ec4899" fillOpacity={0.1} name="Avg Latency (ms)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg">
+                No API log data available
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -411,15 +385,21 @@ export const AnalyticsPage: React.FC = () => {
             <CardDescription>Firewall intrusion audits and login threat counts.</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={securityAnalyticsData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="category" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="value" fill="#ef4444" radius={[4, 4, 0, 0]} name="Incidents Count" />
-              </BarChart>
-            </ResponsiveContainer>
+            {charts.security_analytics.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={charts.security_analytics}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="category" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#ef4444" radius={[4, 4, 0, 0]} name="Incidents Count" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg">
+                No security incident data available
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -430,16 +410,22 @@ export const AnalyticsPage: React.FC = () => {
             <CardDescription>New tenants acquisition and active subscriptions counts.</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={tenantGrowth}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="active" stroke="#10b981" strokeWidth={3} name="Active Tenants" />
-                <Line type="monotone" dataKey="churn" stroke="#ef4444" strokeWidth={2} name="Churned Tenants" />
-              </LineChart>
-            </ResponsiveContainer>
+            {charts.tenant_growth.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={charts.tenant_growth}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="active" stroke="#10b981" strokeWidth={3} name="Active Tenants" />
+                  <Line type="monotone" dataKey="churn" stroke="#ef4444" strokeWidth={2} name="Churned Tenants" />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg">
+                No growth data available
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -450,15 +436,21 @@ export const AnalyticsPage: React.FC = () => {
             <CardDescription>Regional network user connections.</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={regionalData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                <XAxis type="number" />
-                <YAxis dataKey="region" type="category" />
-                <Tooltip />
-                <Bar dataKey="active" fill="#f59e0b" radius={[0, 4, 4, 0]} name="Active Tenants" />
-              </BarChart>
-            </ResponsiveContainer>
+            {charts.regional_data.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={charts.regional_data} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                  <XAxis type="number" />
+                  <YAxis dataKey="region" type="category" />
+                  <Tooltip />
+                  <Bar dataKey="active" fill="#f59e0b" radius={[0, 4, 4, 0]} name="Active Tenants" />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+               <div className="w-full h-full flex items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg">
+                No regional data available
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -494,11 +486,7 @@ export const AnalyticsPage: React.FC = () => {
           <CardDescription>Recent administrative activities and system updates logs.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {[
-            { actor: 'superadmin@kavan.com', event: 'REVENUE_EXPORTS', desc: 'Triggered PDF charts generation', time: '5 mins ago' },
-            { actor: 'admin@kavan.com', event: 'PLAN_UPGRADE', desc: 'Acme Corp upgraded to Enterprise plan', time: '2 hours ago' },
-            { actor: 'security@kavan.com', event: 'IP_WHITELIST_SAVE', desc: 'Updated security network whitelists block', time: '4 hours ago' },
-          ].map((log, idx) => (
+          {audit_timeline.length > 0 ? audit_timeline.map((log: any, idx: number) => (
             <div key={idx} className="flex justify-between items-center border-b pb-3 text-sm last:border-b-0 last:pb-0">
               <div className="space-y-0.5">
                 <p className="font-semibold">{log.actor}</p>
@@ -509,7 +497,9 @@ export const AnalyticsPage: React.FC = () => {
                 <p className="text-[10px] text-muted-foreground mt-0.5">{log.time}</p>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="text-muted-foreground text-center py-4">No recent audit logs found.</div>
+          )}
         </CardContent>
       </Card>
     </div>

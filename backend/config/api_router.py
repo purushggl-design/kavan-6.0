@@ -33,7 +33,11 @@ router = DefaultRouter()
 
 # Layer 5 — Products / Marketplace
 from apps.marketplace.api.platform_views import PlatformProductViewSet
-from apps.marketplace.api.tenant_views import TenantMarketplaceViewSet
+from apps.marketplace.api.tenant_views import (
+    TenantMarketplaceViewSet, MarketplaceCatalogView, MarketplaceInstallView,
+    TenantInstallationListView, TenantInstallationDetailView
+)
+from apps.marketplace.api.version_views import ApplicationVersionUploadView
 from apps.rbac.api.views import RBACViewSet
 
 router.register(r"platform/products", PlatformProductViewSet, basename="platform-products")
@@ -53,13 +57,18 @@ from apps.tenants.api.platform_views import (
 
 # Export the URL patterns for inclusion in urls.py
 app_name = "api_v1"
-urlpatterns = router.urls + [
+urlpatterns = [
+    path("marketplace/versions/", ApplicationVersionUploadView.as_view(), name="application-version-upload"),
+    path("marketplace/catalog/", MarketplaceCatalogView.as_view(), name="marketplace-catalog"),
+    path("marketplace/install/<uuid:version_id>/", MarketplaceInstallView.as_view(), name="marketplace-install"),
+    path("installations/", TenantInstallationListView.as_view(), name="tenant-installations-list"),
+    path("installations/<uuid:pk>/", TenantInstallationDetailView.as_view(), name="tenant-installations-detail"),
+] + router.urls + [
     path("auth/", include("apps.authentication.urls", namespace="auth")),
     path("accounts/", include("apps.accounts.api.urls", namespace="accounts")),
     path("profiles/", include("apps.profiles.api.urls", namespace="profiles")),
     path("devices/", include("apps.devices.api.urls", namespace="devices")),
     path("audit/", include("apps.audit.api.urls", namespace="audit")),
-    path("", include("apps.mfa.api.urls")),
     path("", include("apps.integrations.api.urls")),
     path("monitoring/", include("apps.monitoring.api.urls")),
     path("", include("apps.tenants.urls")),

@@ -55,3 +55,74 @@ def cleanup_failed_task():
 @shared_task
 def deployment_timeout_task():
     pass
+
+import docker
+import secrets
+from apps.marketplace.models.application import TenantInstallation
+
+@shared_task(bind=True, max_retries=1)
+def provision_tenant_service(self, installation_id):
+    try:
+        installation = TenantInstallation.objects.get(id=installation_id)
+    except TenantInstallation.DoesNotExist:
+        return
+        
+    try:
+        manifest = installation.version.manifest
+        env_schema = manifest.get('env_schema', {})
+        runtime = manifest.get('runtime', {})
+        resources = manifest.get('resources', {})
+        
+        # Build environment
+        env = {}
+        for key in env_schema.get('kavan_generated', []):
+            env[key] = secrets.token_urlsafe(32)
+            
+        for key in env_schema.get('kavan_provisioned', []):
+            # TODO: Call provision_tenant_resource() here when built
+            env[key] = "stubbed_provisioned_value"
+            
+        client = docker.from_env()
+        
+        container_name = f"kavan_tenant_{installation.tenant.tenant_code}_{installation.version.application.code}"
+        
+        # Remove stale container
+        try:
+            old_container = client.containers.get(container_name)
+            old_container.remove(force=True)
+        except docker.errors.NotFound:
+            pass
+            
+        # Traefik labels
+        route_path = f"/t/{installation.tenant.tenant_code}/{installation.version.application.code}"
+        labels = {
+            "traefik.enable": "true",
+            f"traefik.http.routers.{container_name}.rule": f"PathPrefix(`{route_path}`)",
+            f"traefik.http.services.{container_name}.loadbalancer.server.port": str(runtime.get('container_port', 80))
+        }
+        
+        # Resource limits
+        mem_limit = resources.get('mem_limit', None)
+        nano_cpus = int(float(resources.get('cpu_limit', 0)) * 1e9) if 'cpu_limit' in resources else None
+        
+        # Spin up container
+        container = client.containers.run(
+            installation.version.image_ref,
+            name=container_name,
+            environment=env,
+            network="kavan_default",
+            labels=labels,
+            mem_limit=mem_limit,
+            nano_cpus=nano_cpus,
+            detach=True
+        )
+        
+        installation.status = 'RUNNING'
+        installation.route_path = route_path
+        installation.save()
+        
+    except Exception as exc:
+        installation.status = 'FAILED'
+        installation.save()
+        self.retry(exc=exc, countdown=5)
+

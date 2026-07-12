@@ -79,60 +79,7 @@ export const PlatformDashboard: React.FC = () => {
 
   return (
     <div className="platform-dashboard">
-      {/* Sidebar */}
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">
-            <svg viewBox="0 0 40 40" fill="none">
-              <path d="M8 20L20 8L32 20L20 32L8 20Z" fill="url(#sidebarGrad)" />
-              <path d="M14 20L20 14L26 20L20 26L14 20Z" fill="rgba(255,255,255,0.2)" />
-              <defs>
-                <linearGradient id="sidebarGrad" x1="8" y1="8" x2="32" y2="32">
-                  <stop stopColor="#7C3AED" />
-                  <stop offset="1" stopColor="#06B6D4" />
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-          <span className="sidebar-logo-text">KAVAN</span>
-        </div>
-
-        <nav className="sidebar-nav">
-          {NAV_ITEMS.map((item) => {
-            const isActive = location.pathname === item.path ||
-              (item.path !== '/platform/dashboard' && location.pathname.startsWith(item.path));
-            return (
-              <div
-                key={item.label}
-                className={`sidebar-nav-item ${isActive ? 'sidebar-nav-item--active' : ''} ${item.disabled ? 'sidebar-nav-item--disabled' : ''}`}
-                onClick={() => !item.disabled && navigate(item.path)}
-                title={item.disabled ? 'Coming in Sprint 2' : undefined}
-              >
-                <span className="sidebar-nav-icon">{item.icon}</span>
-                <span className="sidebar-nav-label">{item.label}</span>
-                {isActive && <div className="sidebar-nav-indicator" />}
-                {item.disabled && <span className="sidebar-nav-soon">soon</span>}
-              </div>
-            );
-          })}
-        </nav>
-
-        <div className="sidebar-user">
-          <div className="sidebar-user-avatar">
-            {user?.first_name?.[0]}{user?.last_name?.[0]}
-          </div>
-          <div className="sidebar-user-info">
-            <div className="sidebar-user-name">{user?.first_name} {user?.last_name}</div>
-            <div className="sidebar-user-role">{user?.platform_role?.replace('_', ' ')}</div>
-          </div>
-          <button className="sidebar-logout-btn" onClick={handleLogout} title="Sign out">
-            <svg viewBox="0 0 20 20" fill="none" width="18" height="18">
-              <path d="M13 7l3 3-3 3M7 10h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M9 3H5a2 2 0 00-2 2v10a2 2 0 002 2h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-          </button>
-        </div>
-      </aside>
+      {/* Sidebar removed to fix nested layout issue with AppLayout */}
 
       {/* Main content */}
       <main className="dashboard-main">

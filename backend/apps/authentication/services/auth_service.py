@@ -154,8 +154,34 @@ class AuthService:
             # We don't raise an error to prevent email enumeration
             return
 
-        # Generate reset token and send email
-        # To be implemented using NotificationService
+        import secrets
+        import hashlib
+        from django.utils import timezone
+        import datetime
+        from apps.authentication.models import PasswordReset
+        
+        # 1. Generate secure token
+        raw_token = secrets.token_urlsafe(32)
+        token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+
+        # 2. Store hashed token with expiry (e.g. 15 mins)
+        expires_at = timezone.now() + datetime.timedelta(minutes=15)
+        ip_address = request_meta.get("ip_address") if request_meta else None
+        
+        # Optional: Invalidate existing unused tokens for this user
+        PasswordReset.objects.filter(user=user, is_used=False).update(is_used=True)
+        
+        PasswordReset.objects.create(
+            user=user,
+            token_hash=token_hash,
+            expires_at=expires_at,
+            ip_address=ip_address
+        )
+
+        # 3. Deliver token (Print to console until email service is wired)
+        # TODO: wire to actual notification engine
+        print(f"\n[SECURE-LOG] PASSWORD RESET TOKEN GENERATED FOR {email}: {raw_token}\n")
+        
         cls._log_audit(user, "FORGOT_PASSWORD_REQUEST", request_meta)
 
     @classmethod
@@ -163,21 +189,42 @@ class AuthService:
         """
         Validates the reset token and updates the password, applying history constraints.
         """
-        # Validate password policy
+        import hashlib
+        from django.utils import timezone
+        from apps.authentication.models import PasswordReset
+
+        # Validate password policy first
         from apps.authentication.validators import PasswordValidator
         PasswordValidator.validate(new_password)
 
-        # Mock token validation for now
-        if token == "invalid_token":
-            raise AuthenticationException("Invalid token")
+        if not token:
+            raise AuthenticationException("Token is required")
+
+        # 1. Hash the provided token
+        token_hash = hashlib.sha256(token.encode()).hexdigest()
+
+        # 2. Look up the token record
+        token_record = PasswordReset.objects.filter(token_hash=token_hash).first()
         
-        # token_record = PasswordReset.objects.filter(token_hash=hash(token)).first()
-        # user = token_record.user
+        if not token_record:
+            raise AuthenticationException("Invalid or expired token")
+            
+        if token_record.is_used:
+            raise AuthenticationException("Token has already been used")
+            
+        if timezone.now() > token_record.expires_at:
+            raise AuthenticationException("Token has expired")
+
+        # 3. Token is valid. Update password.
+        user = token_record.user
+        user.set_password(new_password)
+        user.save()
         
-        # user.set_password(new_password)
-        # user.save()
+        # 4. Mark token as used
+        token_record.is_used = True
+        token_record.save()
         
-        # cls._log_audit(user, "PASSWORD_RESET_SUCCESS", request_meta)
+        cls._log_audit(user, "PASSWORD_RESET_SUCCESS", request_meta)
         pass
 
     @classmethod

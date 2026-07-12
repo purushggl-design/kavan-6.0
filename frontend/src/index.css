@@ -136,12 +136,17 @@
   }
 }
 
-/* Custom Utilities for Glassmorphism & Enterprise UI */
+/* Fix: Since @utility is a Tailwind v4 directive, handle dark mode via css nesting or explicit variables */
 @utility glass {
   background-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+
+  .dark & {
+    background-color: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
 }
 
 @utility glass-card {
@@ -149,16 +154,11 @@
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.4);
   box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.05);
-}
 
-.dark @utility glass {
-  background-color: rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.dark @utility glass-card {
-  background-color: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(30, 41, 59, 0.5);
+  .dark & {
+    background-color: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(30, 41, 59, 0.5);
+  }
 }
 
 @layer utilities {

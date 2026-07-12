@@ -41,7 +41,7 @@ export const superAdminNavigation: NavGroup[] = [
   {
     group: 'Main Control',
     items: [
-      { title: 'Dashboard', href: '/dashboard/super-admin', icon: LayoutDashboard },
+      { title: 'Dashboard', href: '/platform/dashboard', icon: LayoutDashboard },
       { title: 'Tenants', href: '/super-admin/tenants', icon: Building2 },
       { title: 'Users', href: '/users', icon: Users },
       { title: 'Roles & Permissions', href: '/super-admin/roles', icon: Shield },
@@ -91,6 +91,7 @@ export const tenantAdminNavigation: NavGroup[] = [
   {
     group: 'Workflows',
     items: [
+      { title: 'My Apps', href: '/my-apps', icon: Server },
       { title: 'Reports', href: '/reports', icon: FileText },
     ]
   },
@@ -136,7 +137,7 @@ export const developerNavigation: NavGroup[] = [
   {
     group: 'Developer Console',
     items: [
-      { title: 'Developer Dashboard', href: '/dashboard/developer', icon: LayoutDashboard },
+      { title: 'Developer Dashboard', href: '/developer/dashboard', icon: LayoutDashboard },
       { title: 'API Keys', href: '/developer/api-keys', icon: Lock },
       { title: 'Integrations', href: '/integrations', icon: Link },
       { title: 'Webhooks', href: '/developer/webhooks', icon: Link },
@@ -152,7 +153,7 @@ export const securityAdminNavigation: NavGroup[] = [
   {
     group: 'SOC Control',
     items: [
-      { title: 'Security Dashboard', href: '/dashboard/security', icon: LayoutDashboard },
+      { title: 'Security Dashboard', href: '/security/dashboard', icon: LayoutDashboard },
       { title: 'Audit Logs', href: '/security/audit-logs', icon: Activity },
       { title: 'Threat Monitoring', href: '/security/threats', icon: Shield },
       { title: 'MFA Policies', href: '/security/mfa', icon: Lock },

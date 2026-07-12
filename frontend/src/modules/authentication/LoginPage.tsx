@@ -215,9 +215,13 @@ export const LoginPage: React.FC = () => {
               </button>
             </form>
 
-            <div className="login-hint">
-              <span>Default admin:</span>
-              <code>admin@kavan.local / Admin123!</code>
+            <div className="demo-credentials-box">
+              <div className="demo-badge">DEMO ACCESS</div>
+              <div className="demo-creds">
+                <span className="demo-email">admin@kavan.local</span>
+                <span className="demo-dot">•</span>
+                <span className="demo-password">Admin123!</span>
+              </div>
             </div>
 
             <p className="login-footer">
