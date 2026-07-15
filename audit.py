@@ -3,9 +3,9 @@ import ast
 import json
 import glob
 
-APPS_DIR = r"backend\apps"
-CONFIG_URLS = r"backend\config\urls.py"
-TESTS_DIR = r"backend\tests\apps"
+APPS_DIR = os.path.join("backend", "apps")
+CONFIG_URLS = os.path.join("backend", "config", "urls.py")
+TESTS_DIR = os.path.join("backend", "tests", "apps")
 
 def get_models(app_path):
     models_file = os.path.join(app_path, "models.py")

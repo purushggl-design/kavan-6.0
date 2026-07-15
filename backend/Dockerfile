@@ -1,5 +1,5 @@
 # Use official Python 3.10 slim image
-FROM python:3.10-slim
+FROM python:3.10-slim AS base
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -15,16 +15,22 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install python dependencies
+# Copy requirements
 COPY requirements.txt /app/
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Copy project
+# Development stage (installs test/dev tools like pytest)
+FROM base AS development
+ENV DJANGO_SETTINGS_MODULE config.settings.development
+COPY requirements-dev.txt /app/
+RUN pip install -r requirements-dev.txt
 COPY . /app/
-
-# Expose port
 EXPOSE 8000
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
 
-# Start gunicorn server
+# Production stage
+FROM base AS production
+COPY . /app/
+EXPOSE 8000
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "config.wsgi:application"]

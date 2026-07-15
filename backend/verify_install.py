@@ -18,9 +18,9 @@ celery_app.conf.task_eager_propagates = True
 def verify():
     print("Setting up install verification...")
     # Get or create tenant and user
-    owner_user, _ = User.objects.get_or_create(username="tenant_owner", defaults={"email": "owner@test.com", "platform_role": "TENANT_ADMIN"})
+    owner_user, _ = User.objects.get_or_create(username="tenant_owner", defaults={"email": "owner@test.com", "platform_role": None})
     tenant_c, _ = Tenant.objects.get_or_create(tenant_code="tenant_c", defaults={"tenant_name": "Tenant C", "owner": owner_user, "company_domain": "c.com"})
-    user_c, _ = User.objects.get_or_create(username="user_c", defaults={"email": "userc@test.com", "tenant_id": tenant_c.id, "platform_role": "TENANT_USER"})
+    user_c, _ = User.objects.get_or_create(username="user_c", defaults={"email": "userc@test.com", "tenant_id": tenant_c.id, "platform_role": None})
 
     # Setup application
     app, _ = Application.objects.get_or_create(

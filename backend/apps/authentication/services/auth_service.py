@@ -193,10 +193,6 @@ class AuthService:
         from django.utils import timezone
         from apps.authentication.models import PasswordReset
 
-        # Validate password policy first
-        from apps.authentication.validators import PasswordValidator
-        PasswordValidator.validate(new_password)
-
         if not token:
             raise AuthenticationException("Token is required")
 
@@ -214,6 +210,10 @@ class AuthService:
             
         if timezone.now() > token_record.expires_at:
             raise AuthenticationException("Token has expired")
+
+        # Validate password policy (strength + history check)
+        from apps.authentication.validators import PasswordValidator
+        PasswordValidator.validate(new_password, user=token_record.user)
 
         # 3. Token is valid. Update password.
         user = token_record.user

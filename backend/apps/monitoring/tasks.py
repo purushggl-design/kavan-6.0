@@ -65,7 +65,7 @@ def check_installation_health():
             
             # Use the route_path to find the internal host if needed, 
             # or standard container hostname: kavan-{tenant.id}-{app.code}
-            container_name = f"kavan-{install.tenant.tenant_code}-{install.version.application.code}"
+            container_name = f"kavan_tenant_{install.tenant.tenant_code}_{install.version.application.code}"
             
             # Using http://{container_name}:{port}{health_path} within Docker network
             url = f"http://{container_name}:{port}{health_path}"

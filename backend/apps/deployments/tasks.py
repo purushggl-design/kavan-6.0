@@ -56,6 +56,7 @@ def cleanup_failed_task():
 def deployment_timeout_task():
     pass
 
+import os
 import docker
 import secrets
 from apps.marketplace.models.application import TenantInstallation
@@ -110,7 +111,7 @@ def provision_tenant_service(self, installation_id):
             installation.version.image_ref,
             name=container_name,
             environment=env,
-            network="kavan_default",
+            network=os.environ.get("DOCKER_NETWORK", "kavan-60_kavan_network"),
             labels=labels,
             mem_limit=mem_limit,
             nano_cpus=nano_cpus,

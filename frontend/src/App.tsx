@@ -97,32 +97,32 @@ function App() {
               <Route path="permissions" element={<PermissionMatrix />} />
 
               {/* Super Admin Routes */}
-              <Route path="super-admin/tenants" element={<TenantListPage />} />
-              <Route path="super-admin/roles" element={<RolesPermissionsPage />} />
-              <Route path="super-admin/analytics" element={<AnalyticsPage />} />
-              <Route path="super-admin/system-monitoring" element={<SystemMonitoringPage />} />
-              <Route path="super-admin/audit-logs" element={<AuditLogsPage />} />
-              <Route path="super-admin/subscriptions" element={<SubscriptionsPage />} />
-              <Route path="super-admin/licenses" element={<LicensesPage />} />
-              <Route path="super-admin/settings" element={<GlobalSettingsPage />} />
-              <Route path="super-admin/feature-toggles" element={<FeatureTogglesPage />} />
-              <Route path="super-admin/maintenance" element={<MaintenancePage />} />
-              <Route path="super-admin/database-monitor" element={<DatabaseMonitorPage />} />
+              <Route path="super-admin/tenants" element={<ProtectedRoute requiredRole="SUPER_ADMIN"><TenantListPage /></ProtectedRoute>} />
+              <Route path="super-admin/roles" element={<ProtectedRoute requiredRole="SUPER_ADMIN"><RolesPermissionsPage /></ProtectedRoute>} />
+              <Route path="super-admin/analytics" element={<ProtectedRoute requiredRole="SUPER_ADMIN"><AnalyticsPage /></ProtectedRoute>} />
+              <Route path="super-admin/system-monitoring" element={<ProtectedRoute requiredRole="SUPER_ADMIN"><SystemMonitoringPage /></ProtectedRoute>} />
+              <Route path="super-admin/audit-logs" element={<ProtectedRoute requiredRole="SUPER_ADMIN"><AuditLogsPage /></ProtectedRoute>} />
+              <Route path="super-admin/subscriptions" element={<ProtectedRoute requiredRole="SUPER_ADMIN"><SubscriptionsPage /></ProtectedRoute>} />
+              <Route path="super-admin/licenses" element={<ProtectedRoute requiredRole="SUPER_ADMIN"><LicensesPage /></ProtectedRoute>} />
+              <Route path="super-admin/settings" element={<ProtectedRoute requiredRole="SUPER_ADMIN"><GlobalSettingsPage /></ProtectedRoute>} />
+              <Route path="super-admin/feature-toggles" element={<ProtectedRoute requiredRole="SUPER_ADMIN"><FeatureTogglesPage /></ProtectedRoute>} />
+              <Route path="super-admin/maintenance" element={<ProtectedRoute requiredRole="SUPER_ADMIN"><MaintenancePage /></ProtectedRoute>} />
+              <Route path="super-admin/database-monitor" element={<ProtectedRoute requiredRole="SUPER_ADMIN"><DatabaseMonitorPage /></ProtectedRoute>} />
 
               {/* Security Admin Routes */}
-              <Route path="security/audit-logs" element={<SecurityAuditLogsPage />} />
-              <Route path="security/threats" element={<ThreatsPage />} />
-              <Route path="security/mfa" element={<SecurityMfaPage />} />
-              <Route path="security/sessions" element={<SessionsPage />} />
-              <Route path="security/ip-management" element={<IpManagementPage />} />
-              <Route path="security/permissions" element={<PermissionsPage />} />
-              <Route path="security/compliance" element={<CompliancePage />} />
+              <Route path="security/audit-logs" element={<ProtectedRoute requiredRole="SECURITY_ANALYST"><SecurityAuditLogsPage /></ProtectedRoute>} />
+              <Route path="security/threats" element={<ProtectedRoute requiredRole="SECURITY_ANALYST"><ThreatsPage /></ProtectedRoute>} />
+              <Route path="security/mfa" element={<ProtectedRoute requiredRole="SECURITY_ANALYST"><SecurityMfaPage /></ProtectedRoute>} />
+              <Route path="security/sessions" element={<ProtectedRoute requiredRole="SECURITY_ANALYST"><SessionsPage /></ProtectedRoute>} />
+              <Route path="security/ip-management" element={<ProtectedRoute requiredRole="SECURITY_ANALYST"><IpManagementPage /></ProtectedRoute>} />
+              <Route path="security/permissions" element={<ProtectedRoute requiredRole="SECURITY_ANALYST"><PermissionsPage /></ProtectedRoute>} />
+              <Route path="security/compliance" element={<ProtectedRoute requiredRole="SECURITY_ANALYST"><CompliancePage /></ProtectedRoute>} />
 
               {/* Developer Routes */}
-              <Route path="developer/api-keys" element={<ApiKeysPage />} />
-              <Route path="developer/webhooks" element={<WebhooksPage />} />
-              <Route path="developer/deployments" element={<DeploymentsPage />} />
-              <Route path="developer/monitoring" element={<MonitoringPage />} />
+              <Route path="developer/api-keys" element={<ProtectedRoute requiredRole="DEVELOPER"><ApiKeysPage /></ProtectedRoute>} />
+              <Route path="developer/webhooks" element={<ProtectedRoute requiredRole="DEVELOPER"><WebhooksPage /></ProtectedRoute>} />
+              <Route path="developer/deployments" element={<ProtectedRoute requiredRole="DEVELOPER"><DeploymentsPage /></ProtectedRoute>} />
+              <Route path="developer/monitoring" element={<ProtectedRoute requiredRole="DEVELOPER"><MonitoringPage /></ProtectedRoute>} />
 
             </Route>
 

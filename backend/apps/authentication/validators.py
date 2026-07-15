@@ -29,4 +29,17 @@ class PasswordValidator:
         if not re.search(r'[\W_]', password):
             raise ValidationError(_("Password must contain at least one special character."), code='password_no_special')
             
-        # Additional checks (e.g. against password history, common passwords) would go here
+        # Check password history if user is provided
+        if user:
+            from django.contrib.auth.hashers import check_password
+            from apps.accounts.models import PasswordHistory
+            from config.auth_config import AuthConfig
+            
+            # Fetch last N password history records
+            history = PasswordHistory.objects.filter(user=user)[:AuthConfig.PASSWORD_HISTORY_LIMIT]
+            for record in history:
+                if check_password(password, record.password_hash):
+                    raise ValidationError(
+                        _("Password has been used recently. Please choose a different password."),
+                        code='password_reused'
+                    )

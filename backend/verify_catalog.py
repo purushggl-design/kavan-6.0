@@ -35,13 +35,13 @@ def verify():
     )
     
     # Get or create an owner user first
-    owner_user, _ = User.objects.get_or_create(username="tenant_owner", defaults={"email": "owner@test.com", "platform_role": "TENANT_ADMIN"})
+    owner_user, _ = User.objects.get_or_create(username="tenant_owner", defaults={"email": "owner@test.com", "platform_role": None})
 
     tenant_a, _ = Tenant.objects.get_or_create(tenant_code="tenant_a", defaults={"tenant_name": "Tenant A", "owner": owner_user, "company_domain": "a.com"})
     tenant_b, _ = Tenant.objects.get_or_create(tenant_code="tenant_b", defaults={"tenant_name": "Tenant B", "owner": owner_user, "company_domain": "b.com"})
     
-    user_a, _ = User.objects.get_or_create(username="user_a", defaults={"email": "usera@test.com", "tenant_id": tenant_a.id, "platform_role": "TENANT_USER"})
-    user_b, _ = User.objects.get_or_create(username="user_b", defaults={"email": "userb@test.com", "tenant_id": tenant_b.id, "platform_role": "TENANT_USER"})
+    user_a, _ = User.objects.get_or_create(username="user_a", defaults={"email": "usera@test.com", "tenant_id": tenant_a.id, "platform_role": None})
+    user_b, _ = User.objects.get_or_create(username="user_b", defaults={"email": "userb@test.com", "tenant_id": tenant_b.id, "platform_role": None})
 
     from django.test import Client
     

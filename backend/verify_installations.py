@@ -12,12 +12,12 @@ from django.test import Client
 
 def verify():
     print("Setting up installations test data...")
-    owner_user, _ = User.objects.get_or_create(username="tenant_owner", defaults={"email": "owner@test.com", "platform_role": "TENANT_ADMIN"})
+    owner_user, _ = User.objects.get_or_create(username="tenant_owner", defaults={"email": "owner@test.com", "platform_role": None})
 
     tenant_a, _ = Tenant.objects.get_or_create(tenant_code="tenant_a", defaults={"tenant_name": "Tenant A", "owner": owner_user, "company_domain": "a.com"})
     tenant_b, _ = Tenant.objects.get_or_create(tenant_code="tenant_b", defaults={"tenant_name": "Tenant B", "owner": owner_user, "company_domain": "b.com"})
     
-    user_a, _ = User.objects.get_or_create(username="user_a", defaults={"email": "usera@test.com", "tenant_id": tenant_a.id, "platform_role": "TENANT_USER"})
+    user_a, _ = User.objects.get_or_create(username="user_a", defaults={"email": "usera@test.com", "tenant_id": tenant_a.id, "platform_role": None})
 
     app, _ = Application.objects.get_or_create(code="test-app-1", defaults={"name": "Test Application", "description": "Test App"})
     version, _ = ApplicationVersion.objects.get_or_create(application=app, version_number="1.0.0", defaults={"image_ref": "test:latest", "manifest": {}, "is_active": True})

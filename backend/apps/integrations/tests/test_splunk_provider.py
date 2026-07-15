@@ -31,6 +31,8 @@ def test_splunk_hec_provider_normalization():
 @pytest.mark.django_db
 @responses.activate
 def test_siem_connector_retry_queue():
+    import os
+    os.environ["SPLUNK_HEC_TOKEN"] = "fake-token"
     config = SIEMIntegrationConfig.objects.create(
         provider="SPLUNK_HEC",
         endpoint_url="http://splunk.local/services/collector",
